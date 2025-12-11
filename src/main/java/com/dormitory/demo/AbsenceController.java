@@ -20,7 +20,6 @@ public class AbsenceController {
     public Map<String, Object> applyAbsence(@RequestBody AbsenceRequest request, HttpSession session) {
         Map<String, Object> response = new HashMap<>();
 
-        // 로그인 체크
         Student user = (Student) session.getAttribute("user");
         if (user == null) {
             response.put("success", false);
@@ -29,7 +28,6 @@ public class AbsenceController {
         }
 
         try {
-            // 저장 실행
             absenceRepository.save(user.getSid(), request);
             response.put("success", true);
             response.put("message", "외박 신청이 완료되었습니다.");
@@ -42,13 +40,12 @@ public class AbsenceController {
         return response;
     }
 
-    // 2. ★ 추가됨: 나의 외박 신청 내역 조회 API
+    // 2. 나의 외박 신청 내역 조회 API
     @GetMapping("/api/absence/history")
     public List<Map<String, Object>> getMyHistory(HttpSession session) {
         Student user = (Student) session.getAttribute("user");
-        if (user == null) return null; // 로그인 안 했으면 null 반환
+        if (user == null) return null;
 
-        // 내 학번(SID)으로 조회한 신청 내역 반환
         return absenceRepository.findHistoryByStudent(user.getSid());
     }
 }

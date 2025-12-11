@@ -46,7 +46,6 @@
 
         @keyframes blink { 50% { opacity: 0.5; } }
 
-        /* 모달 스타일 */
         .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index: 1000; }
         .modal-content { background: white; padding: 30px; width: 500px; border-radius: 10px; max-height: 80vh; overflow-y: auto; }
 
@@ -74,16 +73,13 @@
 
 <div class="room-container" id="roomList"></div>
 
-<!-- 상세 정보 모달 -->
 <div id="roomModal" class="modal">
     <div class="modal-content">
         <h2 id="modalTitle" style="text-align:center; margin-top:0;">상세 정보</h2>
 
-        <!-- 1. 거주 학생 목록 -->
         <h4>👨‍🎓 거주 학생</h4>
         <ul id="studentList"></ul>
 
-        <!-- 2. 시설물 목록 (추가됨) -->
         <h4>🛏️ 시설물 상태</h4>
         <ul id="facilityList"></ul>
 
@@ -146,7 +142,6 @@
         document.getElementById('roomModal').style.display = 'flex';
 
         try {
-            // 1. 학생 정보 가져오기
             const resStudents = await fetch(`/api/rooms/${roomNo}/students`);
             const students = await resStudents.json();
 
@@ -163,7 +158,6 @@
                 });
             }
 
-            // 2. ★ 시설물 정보 가져오기
             const resFacilities = await fetch(`/api/rooms/${roomNo}/facilities`);
             const facilities = await resFacilities.json();
 

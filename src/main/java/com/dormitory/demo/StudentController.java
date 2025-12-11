@@ -11,7 +11,7 @@ import java.util.Map;
 public class StudentController {
 
     private final StudentRepository studentRepository;
-    private final RoomRepository roomRepository; // 방 인원 관리를 위해 필요
+    private final RoomRepository roomRepository;
 
     public StudentController(StudentRepository studentRepository, RoomRepository roomRepository) {
         this.studentRepository = studentRepository;
@@ -66,7 +66,7 @@ public class StudentController {
         return response;
     }
 
-    // ★ 4. 학생 즉시 퇴소 (수정됨: 신청 대기 없이 바로 삭제)
+    // 4. 학생 즉시 퇴소
     @PostMapping("/request-exit")
     public Map<String, Object> requestExit(HttpSession session) {
         Map<String, Object> response = new HashMap<>();

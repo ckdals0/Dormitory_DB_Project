@@ -13,7 +13,7 @@ public class NoticeRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    // 1. 공지사항 목록 조회 (최신순)
+    // 1. 공지사항 목록 조회
     public List<Notice> findAll() {
         String sql = "SELECT * FROM NOTICE ORDER BY Notice_ID DESC";
         return jdbcTemplate.query(sql, (rs, rowNum) -> new Notice(
@@ -21,7 +21,7 @@ public class NoticeRepository {
                 rs.getString("Title"),
                 rs.getString("Content"),
                 rs.getString("Writer"),
-                rs.getString("Reg_Date") // DB의 TIMESTAMP를 문자열로 가져옴
+                rs.getString("Reg_Date")
         ));
     }
 
@@ -29,5 +29,11 @@ public class NoticeRepository {
     public void save(Notice notice) {
         String sql = "INSERT INTO NOTICE (Title, Content, Writer) VALUES (?, ?, ?)";
         jdbcTemplate.update(sql, notice.getTitle(), notice.getContent(), notice.getWriter());
+    }
+
+    // 3. 공지사항 삭제
+    public void delete(int noticeId) {
+        String sql = "DELETE FROM NOTICE WHERE Notice_ID = ?";
+        jdbcTemplate.update(sql, noticeId);
     }
 }

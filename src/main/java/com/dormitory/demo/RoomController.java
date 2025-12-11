@@ -10,32 +10,32 @@ import java.util.Map;
 public class RoomController {
 
     private final RoomRepository roomRepository;
-    private final FacilityRepository facilityRepository; // 시설물 조회용 추가
+    private final FacilityRepository facilityRepository;
 
     public RoomController(RoomRepository roomRepository, FacilityRepository facilityRepository) {
         this.roomRepository = roomRepository;
         this.facilityRepository = facilityRepository;
     }
 
-    // 1. 빈 방 조회 (학생 등록용 - 드롭다운)
+    // 1. 빈 방 조회
     @GetMapping("/api/rooms/available")
     public List<String> getAvailableRooms() {
         return roomRepository.findAvailableRoomNumbers();
     }
 
-    // 2. ★ 호실 전체 목록 (관리자 호실 관리용 - 현황판)
+    // 2. 호실 전체 목록
     @GetMapping("/api/rooms/all")
     public List<Map<String, Object>> getAllRooms() {
         return roomRepository.findAllRooms();
     }
 
-    // 3. ★ 특정 호실 거주 학생 조회 (상세 모달)
+    // 3. 특정 호실 거주 학생 조회
     @GetMapping("/api/rooms/{roomNo}/students")
     public List<Map<String, Object>> getStudentsByRoom(@PathVariable String roomNo) {
         return roomRepository.findStudentsByRoom(roomNo);
     }
 
-    // 4. ★ 특정 호실 시설물 조회 (상세 모달)
+    // 4. 특정 호실 시설물 조회
     @GetMapping("/api/rooms/{roomNo}/facilities")
     public List<Map<String, Object>> getFacilitiesByRoom(@PathVariable String roomNo) {
         return facilityRepository.findFacilitiesByRoom(roomNo);

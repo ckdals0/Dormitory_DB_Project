@@ -37,13 +37,9 @@ public class PenaltyController {
         return response;
     }
 
-    // 2. 관리자용: 학생 검색 API (이름 또는 학번)
-    // (이 기능은 PenaltyController에 남겨두어 ManagerController의 비대화를 막습니다.)
+    // 2. 관리자용: 학생 검색 API
     @GetMapping("/api/manager/students/search")
     public List<Student> searchStudents(@RequestParam String keyword) {
         return studentRepository.searchStudents(keyword);
     }
-
-    // [삭제됨] givePenalty 메서드는 ManagerController로 통합되었으므로 여기서 제거합니다.
-    // @PostMapping("/api/manager/penalty/give") ...
 }

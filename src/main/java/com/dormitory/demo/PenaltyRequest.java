@@ -1,10 +1,10 @@
 package com.dormitory.demo;
 
 public class PenaltyRequest {
-    private String studentId; // 대상 학생 학번
-    private String type;      // 상점/벌점
-    private int points;       // 점수
-    private String reason;    // 사유
+    private String studentId;
+    private String type;
+    private int points;
+    private String reason;
 
     // Getter, Setter
     public String getStudentId() { return studentId; }

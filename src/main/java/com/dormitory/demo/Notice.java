@@ -7,8 +7,7 @@ public class Notice {
     private String writer;
     private String regDate;
 
-    // 생성자
-    public Notice() {} // 기본 생성자 (JSON 변환용)
+    public Notice() {}
 
     public Notice(int noticeId, String title, String content, String writer, String regDate) {
         this.noticeId = noticeId;

@@ -14,7 +14,7 @@ public class StudentRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    // RowMapper 정의 (Total_Penalty, Is_Exit_Requested 등 포함)
+    // RowMapper 정의
     private final RowMapper<Student> studentRowMapper = (rs, rowNum) -> new Student(
             rs.getString("SID"), rs.getString("Name"), rs.getString("Gender"),
             rs.getString("Dept_Name"), rs.getString("Room_No"), rs.getInt("Total_Penalty")

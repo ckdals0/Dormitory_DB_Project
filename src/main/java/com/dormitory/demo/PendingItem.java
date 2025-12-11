@@ -1,10 +1,10 @@
 package com.dormitory.demo;
 
 public class PendingItem {
-    private String type;    // 예: "외박", "민원"
-    private String text;    // 예: "홍길동 (2024001) - 외박 신청"
-    private String status;  // 예: "대기", "접수"
-    private String id;      // 처리를 위한 고유 ID (Absence_ID 등)
+    private String type;
+    private String text;
+    private String status;
+    private String id;
 
     public PendingItem(String type, String text, String status, String id) {
         this.type = type;

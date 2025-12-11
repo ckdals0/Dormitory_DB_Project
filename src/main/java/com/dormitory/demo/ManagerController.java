@@ -2,8 +2,10 @@ package com.dormitory.demo;
 
 import jakarta.servlet.http.HttpSession;
 import org.springframework.web.bind.annotation.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Comparator;
 
 @RestController
 public class ManagerController {
@@ -29,10 +31,12 @@ public class ManagerController {
         this.penaltyRepository = penaltyRepository;
     }
 
-    // ★ 세션에서 관리자 ID 가져오는 헬퍼 메서드
     private String getManagerId(HttpSession session) {
-        Manager manager = (Manager) session.getAttribute("user");
-        return manager != null ? manager.getManagerId() : null;
+        Object user = session.getAttribute("user");
+        if (user instanceof Manager) {
+            return ((Manager) user).getManagerId();
+        }
+        return null;
     }
 
     // 1. 대시보드 통계 및 대기 목록 API
@@ -41,9 +45,19 @@ public class ManagerController {
         return statsRepository.getManagerStats();
     }
 
+    // 처리 대기 목록 통합 조회
     @GetMapping("/api/manager/pending-items")
     public List<PendingItem> getPendingItems() {
-        return absenceRepository.findPendingItems();
+        List<PendingItem> absenceList = absenceRepository.findPendingItems();
+
+        List<PendingItem> complaintList = complaintRepository.findPendingComplaints();
+
+        List<PendingItem> combinedList = new ArrayList<>();
+        combinedList.addAll(absenceList);
+        combinedList.addAll(complaintList);
+
+
+        return combinedList;
     }
 
     // 2. 외박 관리 API
@@ -52,12 +66,21 @@ public class ManagerController {
         return absenceRepository.findAllPendingDetailed();
     }
 
-    // ★ 외박 승인/반려 처리 (관리자 정보 추가)
+    // 외박 승인/반려 처리
     @PostMapping("/api/manager/absence/approval")
-    public String approveAbsence(@RequestBody ApprovalRequest request, HttpSession session) {
+    public Map<String, Object> approveAbsence(@RequestBody ApprovalRequest request, HttpSession session) {
         String managerId = getManagerId(session);
-        absenceRepository.updateStatus(request.getId(), request.getStatus(), managerId);
-        return "처리되었습니다.";
+        if (managerId == null) {
+            return Map.of("success", false, "message", "관리자 세션 정보가 없습니다.");
+        }
+
+        try {
+            absenceRepository.updateStatus(request.getId(), request.getStatus(), managerId);
+            return Map.of("success", true, "message", "처리되었습니다.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Map.of("success", false, "message", "DB 처리 중 오류가 발생했습니다.");
+        }
     }
 
     // 3. 시설/민원 관리 API
@@ -66,18 +89,34 @@ public class ManagerController {
         return complaintRepository.findAllDetailed();
     }
 
-    // ★ 민원 상태 변경 (관리자 정보 추가)
+    // 민원 상태 변경 (오류 처리 및 관리자 ID 필수 체크 추가)
     @PostMapping("/api/manager/complaint/status")
-    public String updateComplaintStatus(@RequestBody Map<String, String> payload, HttpSession session) {
+    public Map<String, Object> updateComplaintStatus(@RequestBody Map<String, String> payload, HttpSession session) {
         String managerId = getManagerId(session);
-        complaintRepository.updateStatus(payload.get("id"), payload.get("status"), managerId);
-        return "상태가 변경되었습니다.";
+
+        if (managerId == null) {
+            return Map.of("success", false, "message", "로그인 세션이 만료되었거나 관리자 정보가 없습니다.");
+        }
+
+        try {
+            // ComplaintRepository 호출 (Manager_ID 전달)
+            complaintRepository.updateStatus(payload.get("id"), payload.get("status"), managerId);
+
+            return Map.of("success", true, "message", "상태가 변경되었습니다.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            // DB 제약조건 위반 시 (FK 등)
+            return Map.of("success", false, "message", "처리 중 데이터베이스 오류가 발생했습니다. (관리자 ID 또는 데이터 제약 확인)");
+        }
     }
 
     // 4. 학생 관리 API
     @PostMapping("/api/manager/penalty/give")
     public String givePenalty(@RequestBody PenaltyRequest request, HttpSession session) {
         String managerId = getManagerId(session);
+        if (managerId == null) {
+            return "오류: 관리자 세션 정보가 없습니다.";
+        }
 
         try {
             int pointsToApply = request.getPoints();

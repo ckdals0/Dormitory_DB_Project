@@ -58,7 +58,6 @@
 <h1>🏠학생 관리</h1>
 
 <div class="container">
-    <!-- 왼쪽: 학생 등록 폼 -->
     <div class="form-box">
         <h3>📝 학생 등록</h3>
         <label>학번 (SID)</label><input type="text" id="sid" placeholder="예: 2024002">
@@ -69,7 +68,6 @@
         <button onclick="registerStudent()">등록하기</button>
     </div>
 
-    <!-- 오른쪽: 학생 목록 -->
     <div class="list-box">
         <h3>📋 학생 목록</h3>
         <div class="search-container">
@@ -84,7 +82,6 @@
                     <th>학번</th>
                     <th>이름</th>
                     <th>성별</th>
-                    <!-- ★ 클릭 이벤트 연결됨 -->
                     <th class="sortable" onclick="sortTable('deptName')">학과 <span id="icon-deptName" class="sort-icon">↕</span></th>
                     <th class="sortable" onclick="sortTable('roomNo')">호실 <span id="icon-roomNo" class="sort-icon">↕</span></th>
                 </tr>
@@ -103,7 +100,6 @@
     </div>
 </div>
 
-<!-- 호실 이동 모달 -->
 <div id="moveModal" class="modal">
     <div class="modal-content">
         <h3 style="margin-top:0;">🔄 호실 이동</h3>
@@ -120,7 +116,7 @@
 <script>
     let allStudents = [];
     let selectedStudent = null;
-    let currentSort = { key: null, order: 'asc' }; // ★ 정렬 상태 저장
+    let currentSort = { key: null, order: 'asc' };
 
     window.onload = function() {
         loadDepartments();
@@ -136,7 +132,6 @@
             const response = await fetch(url);
             allStudents = await response.json();
 
-            // ★ 데이터 로드 후 현재 정렬 상태 적용
             if (currentSort.key) {
                 applySort();
             }
@@ -169,11 +164,9 @@
             tbody.appendChild(row);
         });
 
-        // ★ 정렬 아이콘 업데이트
         updateSortIcons();
     }
 
-    // ★ 정렬 함수 (복구됨)
     function sortTable(key) {
         if (currentSort.key === key) {
             currentSort.order = currentSort.order === 'asc' ? 'desc' : 'asc';
@@ -185,7 +178,6 @@
         renderTable();
     }
 
-    // ★ 실제 정렬 로직 (복구됨)
     function applySort() {
         const key = currentSort.key;
         const order = currentSort.order;
@@ -194,7 +186,6 @@
             let valA = a[key];
             let valB = b[key];
 
-            // 숫자 형태면 숫자로 변환해서 비교 (예: 101호 < 201호)
             if (!isNaN(valA) && !isNaN(valB)) {
                 valA = Number(valA);
                 valB = Number(valB);
@@ -209,7 +200,6 @@
         });
     }
 
-    // ★ 아이콘 업데이트 로직 (복구됨)
     function updateSortIcons() {
         document.getElementById('icon-deptName').innerText = '↕';
         document.getElementById('icon-roomNo').innerText = '↕';
@@ -225,7 +215,6 @@
         }
     }
 
-    // (나머지 기능 함수들 유지)
     async function loadDepartments() { try { const r=await fetch('/api/departments'); const d=await r.json(); const s=document.getElementById('deptName'); d.forEach(dept=>{const o=document.createElement('option');o.value=dept;o.textContent=dept;s.appendChild(o);}); } catch(e){} }
     async function loadAvailableRooms() { try { const r=await fetch('/api/rooms/available'); const d=await r.json(); const s=document.getElementById('roomNo'); s.innerHTML='<option value="">입실 가능한 방 선택</option>'; d.forEach(room=>{const o=document.createElement('option');o.value=room;o.textContent=room+"호";s.appendChild(o);}); } catch(e){} }
     async function registerStudent() {

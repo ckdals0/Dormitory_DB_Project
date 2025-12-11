@@ -12,7 +12,7 @@ public class ManagerRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    // ★ 로그인용 관리자 조회 (ID와 비밀번호로 조회)
+    // 로그인용 관리자 조회
     public Manager findByIdAndPassword(String id, String password) {
         String sql = "SELECT * FROM MANAGER WHERE Manager_ID = ? AND Password = ?";
         try {
@@ -23,7 +23,7 @@ public class ManagerRepository {
                     rs.getString("Role")
             ), id, password);
         } catch (Exception e) {
-            return null; // 로그인 실패 (정보 불일치)
+            return null;
         }
     }
 }

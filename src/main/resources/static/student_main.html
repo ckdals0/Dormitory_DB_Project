@@ -19,21 +19,18 @@
         .info-item { margin-bottom: 12px; font-size: 15px; color: #555; display: flex; justify-content: space-between; }
         .info-label { font-weight: bold; color: #34495e; }
 
-        /* 액션 버튼 그리드 */
         .action-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 20px; }
         .split-container { display: flex; gap: 10px; width: 100%; height: 120px; }
         .btn-half { flex: 1; height: 100%; padding: 0; font-size: 15px; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; color: white; transition: 0.3s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; background-color: #3498db; }
         .btn-half:hover { background-color: #2980b9; transform: translateY(-2px); }
         .btn-exit { background-color: #e74c3c !important; } .btn-exit:hover { background-color: #c0392b !important; }
 
-        /* 모달 스타일 */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
         .modal-content { background: white; padding: 30px; border-radius: 10px; width: 500px; max-height: 80vh; overflow-y: auto; position: relative; }
         .modal-wide { width: 900px; }
 
         .close-btn { position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; color: #999; background: none; border: none; }
 
-        /* 내역 분할 레이아웃 */
         .history-split-layout { display: flex; gap: 20px; height: 400px; }
         .history-col { flex: 1; display: flex; flex-direction: column; border: 1px solid #eee; border-radius: 8px; padding: 10px; background-color: #fcfcfc; }
         .history-col h4 { margin: 0 0 10px 0; text-align: center; padding-bottom: 10px; border-bottom: 2px solid #ddd; color: #555; }
@@ -86,24 +83,23 @@
     </div>
 
     <div class="card">
-        <h3>⚡ 빠른 서비스</h3>
+        <h3>⚡ 서비스</h3>
         <div class="action-grid">
-            <!-- 1. 외박 섹션 -->
             <div class="split-container">
                 <button class="btn-half" onclick="openModal('absenceModal')">📅 외박 신청</button>
                 <button class="btn-half" onclick="openHistoryModal()">📋 외박 내역</button>
             </div>
-            <!-- 2. 수리 섹션 -->
+
             <div class="split-container">
                 <button class="btn-half" onclick="openModal('repairModal')">🛠️ 수리 요청</button>
                 <button class="btn-half" onclick="openComplaintHistoryModal('REPAIR')">📝 수리 내역</button>
             </div>
-            <!-- 3. 민원 섹션 -->
+
             <div class="split-container">
                 <button class="btn-half" onclick="openModal('complaintModal')">🗣️ 민원 접수</button>
                 <button class="btn-half" onclick="openComplaintHistoryModal('COMPLAINT')">📨 민원 내역</button>
             </div>
-            <!-- 4. 상벌점/퇴소 섹션 -->
+
             <div class="split-container">
                 <button class="btn-half" onclick="openPenaltyModal()">📊 상벌점 확인</button>
                 <button class="btn-half btn-exit" onclick="requestExit()">🚪 퇴소 신청</button>
@@ -112,20 +108,19 @@
     </div>
 </div>
 
-<!-- 외박 내역 모달 (좌우 분할) -->
+
 <div id="historyModal" class="modal">
     <div class="modal-content modal-wide">
         <button class="close-btn" onclick="closeModal('historyModal')">×</button>
         <h3>📋 외박 신청 내역</h3>
 
         <div class="history-split-layout">
-            <!-- 왼쪽: 대기 중 -->
+
             <div class="history-col">
                 <h4 style="color:#f39c12;">⏳ 승인 대기</h4>
                 <ul id="pendingHistoryList" class="history-list"></ul>
             </div>
 
-            <!-- 오른쪽: 처리 완료 (과거) -->
             <div class="history-col">
                 <h4 style="color:#27ae60;">✅ 처리 완료 (승인/반려)</h4>
                 <ul id="pastHistoryList" class="history-list"></ul>
@@ -134,7 +129,7 @@
     </div>
 </div>
 
-<!-- 나머지 모달들 -->
+
 <div id="penaltyModal" class="modal">
     <div class="modal-content">
         <button class="close-btn" onclick="closeModal('penaltyModal')">×</button>
@@ -246,7 +241,6 @@
         });
     };
 
-    // ★ 외박 신청 내역 조회 (관리자 정보 포함)
     function openHistoryModal() {
         document.getElementById('historyModal').style.display='flex';
         loadHistory();
@@ -270,7 +264,7 @@
                 let badgeClass = 'bg-pending';
                 let statusText = '대기';
                 let targetUl = pendingUl;
-                let managerInfo = ''; // ★ 관리자 정보 추가
+                let managerInfo = '';
 
                 if (item.Status === 'Pending') {
                     hasPending = true;
@@ -287,7 +281,6 @@
                         statusText = '반려';
                     }
 
-                    // ★ 처리한 관리자 정보 표시
                     if (item.Manager_Name) {
                         managerInfo = `<br><span style="font-size:12px; color:#999;">처리자: ${item.Manager_Name}</span>`;
                     }
@@ -310,7 +303,6 @@
         } catch(e) { console.error(e); }
     }
 
-    // 외박 신청
     async function applyAbsence() {
         const s = document.getElementById('startDate').value;
         const r = document.getElementById('returnDate').value;
@@ -328,7 +320,6 @@
         closeModal('absenceModal');
     }
 
-    // 내 호실 시설물 목록 로드
     async function loadMyFacilities() {
         if(!myRoomNo) return;
         try {
@@ -345,7 +336,6 @@
         } catch(e) {}
     }
 
-    // 수리 요청
     async function applyRepair() {
         const content = document.getElementById('repairContent').value;
         const facilityId = document.getElementById('repairFacility').value;
@@ -369,7 +359,6 @@
         }
     }
 
-    // 일반 민원 접수
     async function applyComplaint() {
         const content = document.getElementById('complaintContent').value;
 
@@ -392,7 +381,6 @@
         }
     }
 
-    // 퇴소 신청
     async function requestExit() {
         if(!confirm("정말로 퇴소하시겠습니까?\n(확인 시 즉시 처리되며 로그아웃됩니다.)")) return;
 
@@ -408,13 +396,11 @@
         }
     }
 
-    // 상벌점 모달 열기
     function openPenaltyModal() {
         document.getElementById('penaltyModal').style.display='flex';
         loadPenaltyHistory();
     }
 
-    // 상벌점 내역 로드
     async function loadPenaltyHistory() {
         try {
             const res = await fetch('/api/penalty/history');
@@ -460,14 +446,12 @@
         }
     }
 
-    // 민원 내역 모달 열기
     function openComplaintHistoryModal(type) {
         document.getElementById('complaintHistoryModal').style.display = 'flex';
         document.getElementById('complaintHistoryTitle').innerText = (type === 'REPAIR') ? '🛠️ 수리 요청 내역' : '📨 민원 접수 내역';
         loadComplaintHistory(type);
     }
 
-    // ★ 민원 내역 로드 (관리자 정보 포함)
     async function loadComplaintHistory(type) {
         try {
             const res = await fetch('/api/complaint/history');
@@ -490,7 +474,6 @@
                 if(item.Status === '처리중') b = 'bg-process';
                 if(item.Status === '완료') b = 'bg-complete';
 
-                // ★ 관리자 정보 추가
                 let managerInfo = '';
                 if (item.Manager_Name && item.Status !== '접수') {
                     managerInfo = `<br><span style="font-size:12px; color:#999;">처리자: ${item.Manager_Name}</span>`;
@@ -509,7 +492,6 @@
         } catch(e) {}
     }
 
-    // 모달 열기
     function openModal(id) {
         document.getElementById(id).style.display = 'flex';
 
@@ -532,18 +514,15 @@
         }
     }
 
-    // 모달 닫기
     function closeModal(id) {
         document.getElementById(id).style.display = 'none';
     }
 
-    // 로그아웃
     function logout() {
         if(confirm("로그아웃?"))
             fetch('/api/logout',{method:'POST'}).then(()=>location.href='/login.html');
     }
 
-    // 비밀번호 변경
     async function changePassword() {
         const c = document.getElementById('currentPwd').value;
         const n = document.getElementById('newPwd').value;

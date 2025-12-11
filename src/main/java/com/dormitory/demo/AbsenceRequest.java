@@ -5,7 +5,6 @@ public class AbsenceRequest {
     private String returnDate;
     private String reason;
 
-    // Getter, Setter
     public String getStartDate() { return startDate; }
     public void setStartDate(String startDate) { this.startDate = startDate; }
 

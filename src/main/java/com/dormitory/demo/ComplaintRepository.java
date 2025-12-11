@@ -21,7 +21,7 @@ public class ComplaintRepository {
         jdbcTemplate.update(sql, compId, sid, roomNo, content, "접수");
     }
 
-    // 2. 관리자용: 민원 전체 목록 조회 (관리자 이름 포함)
+    // 2. 관리자용: 민원 전체 목록 조회
     public List<Map<String, Object>> findAllDetailed() {
         String sql = """
             SELECT c.*, s.Name AS StudentName, m.MName AS Manager_Name
@@ -37,20 +37,11 @@ public class ComplaintRepository {
         return jdbcTemplate.queryForList(sql);
     }
 
-    // 3. ★ 상태 변경 (관리자 ID 포함) - 3개 매개변수 버전
+    // 3. 상태 변경 (관리자 ID 포함) - Process_Date 필드명 통일 및 ManagerId 기록
     public void updateStatus(String compId, String status, String managerId) {
-        System.out.println("=== ComplaintRepository.updateStatus 호출됨 ===");
-        System.out.println("Comp_ID: " + compId);
-        System.out.println("Status: " + status);
-        System.out.println("Manager_ID: " + managerId);
+        String sql = "UPDATE COMPLAINT SET Status = ?, Manager_ID = ?, Process_Date = CURDATE() WHERE Comp_ID = ?";
+        jdbcTemplate.update(sql, status, managerId, compId);
 
-        // (1) 민원 상태 업데이트 + 관리자 정보 기록
-        String sql = "UPDATE COMPLAINT SET Status = ?, Manager_ID = ?, Processed_Date = CURRENT_TIMESTAMP WHERE Comp_ID = ?";
-        int updated = jdbcTemplate.update(sql, status, managerId, compId);
-
-        System.out.println("업데이트된 행 수: " + updated);
-
-        // (2) 만약 '완료' 처리라면, 연결된 시설물을 찾아 '정상'으로 변경
         if ("완료".equals(status)) {
             try {
                 String selectSql = "SELECT Content FROM COMPLAINT WHERE Comp_ID = ?";
@@ -71,7 +62,7 @@ public class ComplaintRepository {
         }
     }
 
-    // 4. 학생별 민원 내역 조회 (관리자 이름 포함)
+    // 4. 학생별 민원 내역 조회
     public List<Map<String, Object>> findHistoryByStudent(String sid) {
         String sql = """
             SELECT c.*, m.MName AS Manager_Name
@@ -81,5 +72,29 @@ public class ComplaintRepository {
             ORDER BY c.Date DESC
         """;
         return jdbcTemplate.queryForList(sql, sid);
+    }
+
+    // 5. 민원/수리 요청 대기 목록 조회
+    public List<PendingItem> findPendingComplaints() {
+        String sql = """
+            SELECT c.Comp_ID, s.Name, s.SID, c.Content, c.Room_No
+            FROM COMPLAINT c 
+            JOIN STUDENT s ON c.SID = s.SID
+            WHERE c.Status = '접수' 
+            ORDER BY c.Date ASC 
+            LIMIT 5
+        """;
+
+        return jdbcTemplate.query(sql, (rs, rowNum) -> {
+            String content = rs.getString("Content");
+            String type = content.startsWith("[") ? "수리요청" : "민원";
+
+            String desc = String.format("%s (%s) - %s호",
+                    rs.getString("Name"),
+                    rs.getString("SID"),
+                    rs.getString("Room_No"));
+
+            return new PendingItem(type, desc, "접수", rs.getString("Comp_ID"));
+        });
     }
 }

@@ -13,14 +13,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class ComplaintController {
 
     private final ComplaintRepository complaintRepository;
-    private final FacilityRepository facilityRepository; // 시설물 상태 변경을 위해 필요
+    private final FacilityRepository facilityRepository;
 
     public ComplaintController(ComplaintRepository complaintRepository, FacilityRepository facilityRepository) {
         this.complaintRepository = complaintRepository;
         this.facilityRepository = facilityRepository;
     }
 
-    // 1. 수리 요청 접수 API (시설물 상태 변경 포함)
+    // 1. 수리 요청 접수 API
     @PostMapping("/api/complaint/apply")
     public Map<String, Object> applyComplaint(@RequestBody ComplaintRequest request, HttpSession session) {
         Map<String, Object> response = new HashMap<>();
@@ -34,12 +34,12 @@ public class ComplaintController {
         }
 
         try {
-            // ★ 핵심 로직 1: 시설물 ID가 있다면 상태를 '고장'으로 변경
+            // 1: 시설물 ID가 있다면 상태를 '고장'으로 변경
             if (request.getFacilityId() != null && !request.getFacilityId().isEmpty()) {
                 facilityRepository.updateStatus(request.getFacilityId(), "고장");
             }
 
-            // ★ 핵심 로직 2: 민원 내용에 시설물 ID 정보 추가 (선택 사항)
+            // 2: 민원 내용에 시설물 ID 정보 추가 (선택 사항)
             String finalContent = request.getContent();
             if (request.getFacilityId() != null && !request.getFacilityId().isEmpty()) {
                 finalContent = "[" + request.getFacilityId() + "] " + finalContent;

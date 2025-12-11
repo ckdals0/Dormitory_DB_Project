@@ -25,4 +25,11 @@ public class NoticeController {
         noticeRepository.save(notice);
         return "공지사항 등록 성공";
     }
+
+    // 삭제
+    @DeleteMapping("/{noticeId}")
+    public String deleteNotice(@PathVariable int noticeId) {
+        noticeRepository.delete(noticeId);
+        return "공지사항 삭제 성공";
+    }
 }
