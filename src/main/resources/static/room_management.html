@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>호실 관리 - 기숙사 시스템</title>
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f0f2f5; padding: 20px; }
+        h1 { text-align: center; color: #2c3e50; }
+
+        .room-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .room-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border-top: 5px solid #bdc3c7;
+            position: relative;
+        }
+        .room-card:hover { transform: translateY(-5px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+
+        .room-no { font-size: 24px; font-weight: bold; color: #333; }
+        .room-info { font-size: 14px; color: #7f8c8d; margin-top: 10px; }
+
+        .status-full { border-top-color: #e74c3c; }
+        .status-available { border-top-color: #27ae60; }
+        .status-issue { border-top-color: #f39c12 !important; background-color: #fffdf5; }
+
+        .issue-icon {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 18px;
+            color: #e67e22;
+            animation: blink 2s infinite;
+        }
+
+        @keyframes blink { 50% { opacity: 0.5; } }
+
+        /* 모달 스타일 */
+        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index: 1000; }
+        .modal-content { background: white; padding: 30px; width: 500px; border-radius: 10px; max-height: 80vh; overflow-y: auto; }
+
+        h4 { margin: 20px 0 10px 0; border-bottom: 2px solid #eee; padding-bottom: 5px; color: #2c3e50; }
+        ul { list-style: none; padding: 0; margin: 0; }
+        li { padding: 10px; border-bottom: 1px solid #f0f0f0; font-size: 14px; display: flex; justify-content: space-between; align-items: center; }
+        li:last-child { border-bottom: none; }
+
+        .badge { padding: 4px 8px; border-radius: 12px; font-size: 12px; color: white; font-weight: bold; }
+        .badge-normal { background-color: #27ae60; }
+        .badge-fault { background-color: #e74c3c; }
+        .badge-repair { background-color: #f39c12; }
+        .badge-unknown { background-color: #95a5a6; }
+        .badge-decommissioned { background-color: #7f8c8d; }
+
+        .close-btn { background-color: #34495e; color: white; border: none; padding: 8px 20px; border-radius: 5px; cursor: pointer; float: right; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+<h1>🏢 호실별 현황판</h1>
+<div style="text-align: center; margin-bottom: 20px;">
+    <button onclick="location.href='/manager_main.html'" style="padding:10px 20px; cursor:pointer; background:#fff; border:1px solid #ccc; border-radius:5px;">⬅ 메인으로</button>
+</div>
+
+<div class="room-container" id="roomList"></div>
+
+<!-- 상세 정보 모달 -->
+<div id="roomModal" class="modal">
+    <div class="modal-content">
+        <h2 id="modalTitle" style="text-align:center; margin-top:0;">상세 정보</h2>
+
+        <!-- 1. 거주 학생 목록 -->
+        <h4>👨‍🎓 거주 학생</h4>
+        <ul id="studentList"></ul>
+
+        <!-- 2. 시설물 목록 (추가됨) -->
+        <h4>🛏️ 시설물 상태</h4>
+        <ul id="facilityList"></ul>
+
+        <div style="overflow: hidden;">
+            <button class="close-btn" onclick="document.getElementById('roomModal').style.display='none'">닫기</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    window.onload = loadRooms;
+
+    async function loadRooms() {
+        try {
+            const response = await fetch('/api/rooms/all');
+            const rooms = await response.json();
+            const container = document.getElementById('roomList');
+
+            rooms.forEach(room => {
+                const isFull = room.Current_Occupants >= room.Capacity;
+                const hasIssue = room.Issue_Count > 0;
+
+                let statusClass = isFull ? 'status-full' : 'status-available';
+                let statusText = isFull ? '<span style="color:#e74c3c; font-weight:bold;">만실</span>' : '<span style="color:#27ae60; font-weight:bold;">입실 가능</span>';
+                let warningIcon = '';
+
+                if (hasIssue) {
+                    statusClass = 'status-issue';
+                    warningIcon = '<div class="issue-icon">⚠️</div>';
+                }
+
+                const card = document.createElement('div');
+                card.className = `room-card ${statusClass}`;
+                card.onclick = () => showRoomDetail(room.Room_No);
+
+                card.innerHTML = `
+                    ${warningIcon}
+                    <div class="room-no">${room.Room_No}호</div>
+                    <div class="room-info">
+                        ${room.Current_Occupants} / ${room.Capacity} 명<br>
+                        ${statusText}
+                    </div>
+                    ${hasIssue ? `<div style="font-size:12px; color:#e67e22; margin-top:5px;">🛠️ 시설 점검 필요</div>` : ''}
+                `;
+                container.appendChild(card);
+            });
+        } catch (error) {
+            console.error("호실 목록 로드 실패:", error);
+        }
+    }
+
+    async function showRoomDetail(roomNo) {
+        document.getElementById('modalTitle').innerText = `${roomNo}호 상세 정보`;
+
+        const studentList = document.getElementById('studentList');
+        const facilityList = document.getElementById('facilityList');
+
+        studentList.innerHTML = '<li style="justify-content:center;">로딩 중...</li>';
+        facilityList.innerHTML = '<li style="justify-content:center;">로딩 중...</li>';
+        document.getElementById('roomModal').style.display = 'flex';
+
+        try {
+            // 1. 학생 정보 가져오기
+            const resStudents = await fetch(`/api/rooms/${roomNo}/students`);
+            const students = await resStudents.json();
+
+            studentList.innerHTML = '';
+            if (students.length === 0) {
+                studentList.innerHTML = '<li style="color:#999; justify-content:center;">거주 중인 학생이 없습니다.</li>';
+            } else {
+                students.forEach(s => {
+                    studentList.innerHTML += `
+                        <li style="display:block;">
+                            <strong>${s.Name}</strong> <small>(${s.Dept_Name})</small><br>
+                            <span style="color:#666; font-size:12px;">${s.Phone}</span>
+                        </li>`;
+                });
+            }
+
+            // 2. ★ 시설물 정보 가져오기
+            const resFacilities = await fetch(`/api/rooms/${roomNo}/facilities`);
+            const facilities = await resFacilities.json();
+
+            facilityList.innerHTML = '';
+            if (facilities.length === 0) {
+                facilityList.innerHTML = '<li style="color:#999; justify-content:center;">등록된 시설물이 없습니다.</li>';
+            } else {
+                facilities.forEach(f => {
+                    let badgeClass = 'badge-unknown';
+                    if (f.Status === '정상') badgeClass = 'badge-normal';
+                    else if (f.Status === '고장') badgeClass = 'badge-fault';
+                    else if (f.Status === '수리중') badgeClass = 'badge-repair';
+                    else if (f.Status === '폐기') badgeClass = 'badge-decommissioned';
+
+                    facilityList.innerHTML += `
+                        <li>
+                            <span>${f.Name} <small style="color:#aaa;">(${f.Fac_ID})</small></span>
+                            <span class="badge ${badgeClass}">${f.Status}</span>
+                        </li>`;
+                });
+            }
+        } catch (error) {
+            console.error("상세 정보 로드 실패:", error);
+            studentList.innerHTML = '<li>정보를 불러오지 못했습니다.</li>';
+            facilityList.innerHTML = '<li>정보를 불러오지 못했습니다.</li>';
+        }
+    }
+</script>
+</body>
+</html>

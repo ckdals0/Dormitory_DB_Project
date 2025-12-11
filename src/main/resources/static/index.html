@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>기숙사 학생 관리 시스템</title>
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; max-width: 1000px; margin: 0 auto; padding: 20px; background-color: #f9f9f9; }
+
+        h1 { color: #2c3e50; border-bottom: 3px solid #3498db; padding-bottom: 10px; text-align: center; margin-bottom: 30px; }
+        .back-link { display: block; margin-bottom: 20px; color: #7f8c8d; text-decoration: none; font-weight: bold; }
+
+        .container { display: flex; gap: 30px; flex-wrap: wrap; }
+        .form-box, .list-box { flex: 1; padding: 25px; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); min-width: 320px; }
+
+        h3 { margin-top: 0; color: #34495e; display: flex; align-items: center; gap: 8px; justify-content: space-between; }
+        label { display: block; margin-top: 15px; font-weight: bold; font-size: 14px; color: #555; }
+
+        input, select { width: 100%; padding: 12px; margin-top: 8px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 14px; transition: 0.3s; }
+        button { width: 100%; margin-top: 25px; padding: 12px; background-color: #3498db; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; transition: background 0.3s; }
+        button:hover { background-color: #2980b9; }
+
+        /* 검색창 */
+        .search-container { display: flex; gap: 8px; margin-bottom: 15px; }
+        .search-input { flex: 1; margin-top: 0; padding: 10px; }
+        .search-btn { width: auto; margin-top: 0; padding: 10px 20px; background-color: #2c3e50; }
+
+        /* 테이블 스타일 */
+        .table-wrapper { max-height: 500px; overflow-y: auto; margin-top: 10px; border: 1px solid #eee; border-radius: 6px; }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        th, td { border-bottom: 1px solid #eee; padding: 12px 10px; text-align: left; }
+
+        /* ★ 정렬 가능한 헤더 스타일 */
+        th { background-color: #f8f9fa; color: #444; font-weight: 600; position: sticky; top: 0; z-index: 1; }
+        th.sortable { cursor: pointer; user-select: none; }
+        th.sortable:hover { background-color: #e9ecef; }
+        .sort-icon { display: inline-block; margin-left: 5px; font-size: 12px; color: #999; }
+        .sort-asc .sort-icon::after { content: "▲"; color: #3498db; }
+        .sort-desc .sort-icon::after { content: "▼"; color: #e74c3c; }
+
+        tr.selected { background-color: #e3f2fd; border-left: 4px solid #3498db; }
+        tr:hover { background-color: #f1f5f9; cursor: pointer; }
+
+        .manage-actions { display: none; gap: 10px; margin-top: 15px; padding-top: 15px; border-top: 1px dashed #ccc; align-items: center; }
+        .btn-move { background-color: #1abc9c; width: auto; margin-top: 0; padding: 10px 15px; font-size: 14px; }
+        .btn-exit { background-color: #7f8c8d; width: auto; margin-top: 0; padding: 10px 15px; font-size: 14px; }
+
+        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index: 1000; }
+        .modal-content { background: white; padding: 30px; width: 400px; border-radius: 10px; }
+    </style>
+</head>
+<body>
+
+<div style="max-width: 1000px; margin: 0 auto;">
+    <a href="/manager_main.html" class="back-link">⬅ 관리자 메인으로</a>
+</div>
+
+<h1>🏠학생 관리</h1>
+
+<div class="container">
+    <!-- 왼쪽: 학생 등록 폼 -->
+    <div class="form-box">
+        <h3>📝 학생 등록</h3>
+        <label>학번 (SID)</label><input type="text" id="sid" placeholder="예: 2024002">
+        <label>이름</label><input type="text" id="name" placeholder="예: 홍길동">
+        <label>성별</label><select id="gender"><option value="M">남성 (M)</option><option value="F">여성 (F)</option></select>
+        <label>학과</label><select id="deptName"><option value="">학과를 선택하세요</option></select>
+        <label>호실</label><select id="roomNo"><option value="">입실 가능한 방 선택</option></select>
+        <button onclick="registerStudent()">등록하기</button>
+    </div>
+
+    <!-- 오른쪽: 학생 목록 -->
+    <div class="list-box">
+        <h3>📋 학생 목록</h3>
+        <div class="search-container">
+            <input type="text" id="searchInput" class="search-input" placeholder="이름 또는 학번 검색" onkeyup="if(event.key==='Enter') loadStudents()">
+            <button onclick="loadStudents()" class="search-btn">🔍 검색</button>
+        </div>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                <tr>
+                    <th>학번</th>
+                    <th>이름</th>
+                    <th>성별</th>
+                    <!-- ★ 클릭 이벤트 연결됨 -->
+                    <th class="sortable" onclick="sortTable('deptName')">학과 <span id="icon-deptName" class="sort-icon">↕</span></th>
+                    <th class="sortable" onclick="sortTable('roomNo')">호실 <span id="icon-roomNo" class="sort-icon">↕</span></th>
+                </tr>
+                </thead>
+                <tbody id="studentTableBody"></tbody>
+            </table>
+        </div>
+
+        <div id="manageActions" class="manage-actions">
+            <span id="selectedInfo" style="font-size:14px; font-weight:bold; color:#2c3e50; align-self:center;"></span>
+            <div style="margin-left:auto; display:flex; gap:5px;">
+                <button class="btn-move" onclick="openMoveModal()">🔄 호실 이동</button>
+                <button class="btn-exit" onclick="exitStudent()">🚪 퇴소 처리</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 호실 이동 모달 -->
+<div id="moveModal" class="modal">
+    <div class="modal-content">
+        <h3 style="margin-top:0;">🔄 호실 이동</h3>
+        <p id="moveTargetText" style="color:#666; font-size:14px;"></p>
+        <label>이동할 호실 선택 (입실 가능)</label>
+        <select id="newRoomSelect" style="margin-bottom:20px;"></select>
+        <div style="text-align:right; display:flex; gap:10px; justify-content:flex-end;">
+            <button onclick="confirmMove()" class="btn-move" style="width:auto; margin-top:0;">이동</button>
+            <button onclick="closeModal('moveModal')" style="width:auto; background:#95a5a6; margin-top:0; border:none; color:white; padding: 12px;">취소</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let allStudents = [];
+    let selectedStudent = null;
+    let currentSort = { key: null, order: 'asc' }; // ★ 정렬 상태 저장
+
+    window.onload = function() {
+        loadDepartments();
+        loadAvailableRooms();
+        loadStudents();
+    };
+
+    async function loadStudents() {
+        const keyword = document.getElementById('searchInput').value;
+        let url = keyword ? '/students?keyword=' + encodeURIComponent(keyword) : '/students';
+
+        try {
+            const response = await fetch(url);
+            allStudents = await response.json();
+
+            // ★ 데이터 로드 후 현재 정렬 상태 적용
+            if (currentSort.key) {
+                applySort();
+            }
+            renderTable();
+        } catch (error) { console.error("Error:", error); }
+    }
+
+    function renderTable() {
+        const tbody = document.getElementById("studentTableBody");
+        tbody.innerHTML = "";
+        selectedStudent = null;
+        document.getElementById('manageActions').style.display = 'none';
+
+        if (allStudents.length === 0) {
+            tbody.innerHTML = "<tr><td colspan='5' style='text-align:center; padding: 20px;'>학생이 없습니다.</td></tr>";
+            return;
+        }
+
+        allStudents.forEach(student => {
+            const row = document.createElement('tr');
+            row.innerHTML = `<td>${student.sid}</td><td>${student.name}</td><td>${student.gender}</td><td>${student.deptName}</td><td>${student.roomNo}</td>`;
+
+            row.onclick = () => {
+                document.querySelectorAll('tr').forEach(r => r.classList.remove('selected'));
+                row.classList.add('selected');
+                selectedStudent = student;
+                document.getElementById('manageActions').style.display = 'flex';
+                document.getElementById('selectedInfo').innerText = `${student.name} (${student.sid}) | 현재: ${student.roomNo}호`;
+            };
+            tbody.appendChild(row);
+        });
+
+        // ★ 정렬 아이콘 업데이트
+        updateSortIcons();
+    }
+
+    // ★ 정렬 함수 (복구됨)
+    function sortTable(key) {
+        if (currentSort.key === key) {
+            currentSort.order = currentSort.order === 'asc' ? 'desc' : 'asc';
+        } else {
+            currentSort.key = key;
+            currentSort.order = 'asc';
+        }
+        applySort();
+        renderTable();
+    }
+
+    // ★ 실제 정렬 로직 (복구됨)
+    function applySort() {
+        const key = currentSort.key;
+        const order = currentSort.order;
+
+        allStudents.sort((a, b) => {
+            let valA = a[key];
+            let valB = b[key];
+
+            // 숫자 형태면 숫자로 변환해서 비교 (예: 101호 < 201호)
+            if (!isNaN(valA) && !isNaN(valB)) {
+                valA = Number(valA);
+                valB = Number(valB);
+            } else {
+                valA = valA.toString().toLowerCase();
+                valB = valB.toString().toLowerCase();
+            }
+
+            if (valA < valB) return order === 'asc' ? -1 : 1;
+            if (valA > valB) return order === 'asc' ? 1 : -1;
+            return 0;
+        });
+    }
+
+    // ★ 아이콘 업데이트 로직 (복구됨)
+    function updateSortIcons() {
+        document.getElementById('icon-deptName').innerText = '↕';
+        document.getElementById('icon-roomNo').innerText = '↕';
+        document.querySelectorAll('th').forEach(th => th.classList.remove('sort-asc', 'sort-desc'));
+
+        if (currentSort.key) {
+            const iconId = 'icon-' + currentSort.key;
+            const iconEl = document.getElementById(iconId);
+            if (iconEl) {
+                iconEl.innerText = currentSort.order === 'asc' ? '▲' : '▼';
+                iconEl.parentElement.classList.add(currentSort.order === 'asc' ? 'sort-asc' : 'sort-desc');
+            }
+        }
+    }
+
+    // (나머지 기능 함수들 유지)
+    async function loadDepartments() { try { const r=await fetch('/api/departments'); const d=await r.json(); const s=document.getElementById('deptName'); d.forEach(dept=>{const o=document.createElement('option');o.value=dept;o.textContent=dept;s.appendChild(o);}); } catch(e){} }
+    async function loadAvailableRooms() { try { const r=await fetch('/api/rooms/available'); const d=await r.json(); const s=document.getElementById('roomNo'); s.innerHTML='<option value="">입실 가능한 방 선택</option>'; d.forEach(room=>{const o=document.createElement('option');o.value=room;o.textContent=room+"호";s.appendChild(o);}); } catch(e){} }
+    async function registerStudent() {
+        const data = { sid: document.getElementById("sid").value, name: document.getElementById("name").value, gender: document.getElementById("gender").value, deptName: document.getElementById("deptName").value, roomNo: document.getElementById("roomNo").value };
+        if(!data.sid || !data.name || !data.deptName || !data.roomNo) return alert("정보를 모두 입력하세요");
+        try { const res = await fetch('/students', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) });
+            if(res.ok) { alert("등록 성공"); loadStudents(); loadAvailableRooms(); document.getElementById("sid").value=""; document.getElementById("name").value=""; document.getElementById("deptName").value=""; document.getElementById("roomNo").value=""; } else alert("등록 실패");
+        } catch(e) { alert("오류 발생"); }
+    }
+    async function openMoveModal() {
+        if(!selectedStudent) return;
+        try { const res = await fetch('/api/rooms/available'); const rooms = await res.json(); const select = document.getElementById('newRoomSelect'); select.innerHTML = '<option value="">선택하세요</option>'; rooms.forEach(r => { if(r !== selectedStudent.roomNo) select.innerHTML += `<option value="${r}">${r}호</option>`; }); } catch(e){}
+        document.getElementById('moveTargetText').innerText = `${selectedStudent.name} 학생 (${selectedStudent.roomNo}호)을 이동시킵니다.`;
+        document.getElementById('moveModal').style.display = 'flex';
+    }
+    async function confirmMove() {
+        const newRoom = document.getElementById('newRoomSelect').value;
+        if(!newRoom) return alert("방을 선택해주세요.");
+        await fetch('/api/manager/student/move', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ sid: selectedStudent.sid, newRoom: newRoom }) });
+        alert("이동되었습니다."); closeModal('moveModal'); loadStudents(); loadAvailableRooms();
+    }
+    async function exitStudent() {
+        if(!selectedStudent) return;
+        if(!confirm(`${selectedStudent.name} 학생을 퇴소 처리하시겠습니까?`)) return;
+        await fetch('/api/manager/student/exit', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ sid: selectedStudent.sid }) });
+        alert("퇴소 처리되었습니다."); loadStudents(); loadAvailableRooms();
+    }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+</script>
+</body>
+</html>
