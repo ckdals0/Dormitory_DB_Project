@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <title>관리자 시스템 - 기숙사</title>
     <style>
-        /* 스타일은 기존 유지 */
         body { font-family: 'Noto Sans KR', sans-serif; background-color: #f0f2f5; margin: 0; padding: 0; }
         header { background-color: #2c3e50; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
         .logout-btn { background-color: #e74c3c; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; transition: 0.3s; }
@@ -72,22 +71,38 @@
         .n-meta { font-size: 12px; color: #999; margin-top: 5px; }
         .n-content { margin-top: 5px; color: #555; white-space: pre-wrap; }
         .status-btn { padding: 5px 10px; border-radius: 4px; border: none; cursor: pointer; color: white; font-size: 12px; margin-right: 5px; }
-        .btn-process { background-color: #3498db; } .btn-complete { background-color: #27ae60; }
+        .btn-process { background-color: #3498db; }
+        .btn-complete { background-color: #27ae60; }
     </style>
 </head>
 <body>
 
 <header>
     <h1>🛡️ 기숙사 관리자 시스템</h1>
-    <div><span id="managerName" style="margin-right: 15px; font-weight: bold;">관리자님</span><button class="logout-btn" onclick="logout()">로그아웃</button></div>
+    <div>
+        <span id="managerName" style="margin-right: 15px; font-weight: bold;">관리자님</span>
+        <button class="logout-btn" onclick="logout()">로그아웃</button>
+    </div>
 </header>
 
 <div class="container">
     <div class="stats-grid">
-        <div class="stat-card"><div class="stat-label">총 거주 학생</div><div class="stat-number" id="statTotal">0명</div></div>
-        <div class="stat-card"><div class="stat-label">오늘의 외박자</div><div class="stat-number" id="statAbsence" style="color: #e74c3c;">0명</div></div>
-        <div class="stat-card"><div class="stat-label">승인 대기 외박</div><div class="stat-number" id="statPendingAbsence" style="color: #f39c12;">0건</div></div>
-        <div class="stat-card"><div class="stat-label">처리 대기 민원</div><div class="stat-number" id="statPendingComplaint" style="color: #8e44ad;">0건</div></div>
+        <div class="stat-card">
+            <div class="stat-label">총 거주 학생</div>
+            <div class="stat-number" id="statTotal">0명</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">오늘의 외박자</div>
+            <div class="stat-number" id="statAbsence" style="color: #e74c3c;">0명</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">승인 대기 외박</div>
+            <div class="stat-number" id="statPendingAbsence" style="color: #f39c12;">0건</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">처리 대기 민원</div>
+            <div class="stat-number" id="statPendingComplaint" style="color: #8e44ad;">0건</div>
+        </div>
     </div>
 
     <div class="action-section">
@@ -104,16 +119,54 @@
         </div>
         <div class="panel">
             <h3>🔔 처리 대기 목록</h3>
-            <ul id="pendingList" class="list-group"><li class="list-item" style="color:#999; text-align:center; padding:20px;">로딩 중...</li></ul>
+            <ul id="pendingList" class="list-group">
+                <li class="list-item" style="color:#999; text-align:center; padding:20px;">로딩 중...</li>
+            </ul>
         </div>
     </div>
 </div>
 
 <!-- 모달들 -->
-<div id="exitApprovalModal" class="modal"><div class="modal-content" style="width: 600px;"><button class="close-btn" onclick="closeModal('exitApprovalModal')">×</button><h2 style="margin-top:0;">🚪 퇴소 신청 승인</h2><table class="data-table"><thead><tr><th>학번</th><th>이름</th><th>호실</th><th>신청일</th><th>처리</th></tr></thead><tbody id="exitRequestList"></tbody></table></div></div>
-<div id="approvalModal" class="modal"><div class="modal-content" style="width: 700px;"><button class="close-btn" onclick="closeModal('approvalModal')">×</button><h2 style="margin-top:0;">📅 외박 신청 승인</h2><table class="data-table"><thead><tr><th>학생 정보</th><th>기간</th><th>사유</th><th>처리</th></tr></thead><tbody id="approvalList"></tbody></table></div></div>
+<!-- 퇴소 신청 승인 모달 -->
+<div id="exitApprovalModal" class="modal">
+    <div class="modal-content" style="width: 600px;">
+        <button class="close-btn" onclick="closeModal('exitApprovalModal')">×</button>
+        <h2 style="margin-top:0;">🚪 퇴소 신청 승인</h2>
+        <table class="data-table">
+            <thead>
+            <tr>
+                <th>학번</th>
+                <th>이름</th>
+                <th>호실</th>
+                <th>신청일</th>
+                <th>처리</th>
+            </tr>
+            </thead>
+            <tbody id="exitRequestList"></tbody>
+        </table>
+    </div>
+</div>
 
-<!-- 1. 상벌점 관리 모달 (수정됨) -->
+<!-- 외박 승인 모달 -->
+<div id="approvalModal" class="modal">
+    <div class="modal-content" style="width: 700px;">
+        <button class="close-btn" onclick="closeModal('approvalModal')">×</button>
+        <h2 style="margin-top:0;">📅 외박 신청 승인</h2>
+        <table class="data-table">
+            <thead>
+            <tr>
+                <th>학생 정보</th>
+                <th>기간</th>
+                <th>사유</th>
+                <th>처리</th>
+            </tr>
+            </thead>
+            <tbody id="approvalList"></tbody>
+        </table>
+    </div>
+</div>
+
+<!-- 상벌점 관리 모달 -->
 <div id="penaltyModal" class="modal">
     <div class="modal-content" style="width: 850px;">
         <button class="close-btn" onclick="closeModal('penaltyModal')">×</button>
@@ -127,9 +180,7 @@
                     <input type="text" id="pSearchKeyword" class="search-input" placeholder="이름/학번 (빈칸 시 전체)" onkeyup="if(event.key==='Enter') searchStudent()">
                     <button class="btn-search" onclick="searchStudent()">검색</button>
                 </div>
-                <ul id="pStudentList" class="search-result-list">
-                    <!-- 목록 로드됨 -->
-                </ul>
+                <ul id="pStudentList" class="search-result-list"></ul>
             </div>
 
             <!-- 오른쪽: 점수 부여 -->
@@ -160,61 +211,208 @@
     </div>
 </div>
 
-<!-- 4. 민원 관리 모달 -->
-<div id="complaintModal" class="modal"><div class="modal-content"><button class="close-btn" onclick="closeModal('complaintModal')">×</button><h2 style="margin-top:0;">🛠️ 시설 수리 및 민원 관리</h2><table class="data-table"><thead><tr><th>상태</th><th>위치</th><th>내용</th><th>접수일</th><th>처리</th></tr></thead><tbody id="complaintList"></tbody></table></div></div>
-<!-- 5. 공지사항 모달 -->
-<div id="noticeModal" class="modal"><div class="modal-content"><button class="close-btn" onclick="closeModal('noticeModal')">×</button><h2 style="margin-top:0;">📢 공지사항 관리</h2><div style="background:#f9f9f9; padding:15px; border-radius:8px; margin-top:10px;"><input type="text" id="nTitle" class="notice-input" placeholder="제목"><textarea id="nContent" class="notice-input notice-area" placeholder="내용"></textarea><div style="text-align:right;"><button onclick="createNotice()" style="padding:5px 15px; background:#3498db; color:white; border:none; border-radius:4px; cursor:pointer;">등록</button></div></div><ul id="noticeList" class="notice-list"></ul></div></div>
-<!-- 호실 이동 선택 모달 -->
-<div id="moveModal" class="modal" style="z-index: 1100;"><div class="modal-content" style="width:400px;"><button class="close-btn" onclick="closeModal('moveModal')">×</button><h3>🔄 호실 이동</h3><p id="moveTargetInfo" style="color:#666; font-size:14px;"></p><div class="form-group"><label>이동할 호실 선택 (입실 가능 목록)</label><select id="newRoomSelect" class="form-input"></select></div><div style="text-align:right; margin-top:20px;"><button class="btn-move" style="width:auto; padding:8px 20px;" onclick="confirmMove()">이동</button><button class="btn-exit-student" style="width:auto; padding:8px 20px; background:#95a5a6;" onclick="closeModal('moveModal')">취소</button></div></div></div>
+<!-- 민원 관리 모달 -->
+<div id="complaintModal" class="modal">
+    <div class="modal-content">
+        <button class="close-btn" onclick="closeModal('complaintModal')">×</button>
+        <h2 style="margin-top:0;">🛠️ 시설 수리 및 민원 관리</h2>
+        <table class="data-table">
+            <thead>
+            <tr>
+                <th>상태</th>
+                <th>위치</th>
+                <th>내용</th>
+                <th>접수일</th>
+                <th>처리</th>
+            </tr>
+            </thead>
+            <tbody id="complaintList"></tbody>
+        </table>
+    </div>
+</div>
+
+<!-- 공지사항 모달 -->
+<div id="noticeModal" class="modal">
+    <div class="modal-content">
+        <button class="close-btn" onclick="closeModal('noticeModal')">×</button>
+        <h2 style="margin-top:0;">📢 공지사항 관리</h2>
+        <div style="background:#f9f9f9; padding:15px; border-radius:8px; margin-top:10px;">
+            <input type="text" id="nTitle" class="notice-input" placeholder="제목">
+            <textarea id="nContent" class="notice-input notice-area" placeholder="내용"></textarea>
+            <div style="text-align:right;">
+                <button onclick="createNotice()" style="padding:5px 15px; background:#3498db; color:white; border:none; border-radius:4px; cursor:pointer;">등록</button>
+            </div>
+        </div>
+        <ul id="noticeList" class="notice-list"></ul>
+    </div>
+</div>
 
 <script>
     let globalSelectedSid = null;
 
-    window.onload = function() { loadManagerInfo(); loadStats(); loadPendingItems(); loadExitRequests(); };
+    window.onload = function() {
+        loadManagerInfo();
+        loadStats();
+        loadPendingItems();
+        loadExitRequests();
+    };
 
-    function loadManagerInfo() { fetch('/api/current-user').then(r=>r.json()).then(d=>{ if(!d.loggedIn || d.role!=='MANAGER') location.href='/login.html'; document.getElementById('managerName').innerText=(d.user.mname||"관리자")+"님"; }); }
-    async function loadStats() { try{ const r=await fetch('/api/manager/stats'); if(r.ok){ const s=await r.json(); document.getElementById('statTotal').innerText=s.totalStudents+"명"; document.getElementById('statAbsence').innerText=s.todayAbsence+"명"; document.getElementById('statPendingAbsence').innerText=s.pendingAbsence+"건"; document.getElementById('statPendingComplaint').innerText=s.pendingComplaints+"건"; } }catch(e){} }
-    async function loadPendingItems() { try { const response = await fetch('/api/manager/pending-items'); const items = await response.json(); const list = document.getElementById('pendingList'); list.innerHTML = ''; if (items.length === 0) { list.innerHTML = '<li class="list-item" style="color:#999; text-align:center;">대기 중인 항목 없음</li>'; return; } items.forEach(item => { let color = item.type==='외박'?'#27ae60':(item.type==='퇴소'?'#e74c3c':'#9b59b6'); list.innerHTML += `<li class="list-item"><span><strong style="color:${color}">[${item.type}]</strong> ${item.text}</span><span class="badge" style="background-color:${color}">${item.status}</span></li>`; }); } catch(e){} }
-    function openExitApprovalModal() { document.getElementById('exitApprovalModal').style.display = 'flex'; loadExitRequests(); }
-    async function loadExitRequests() { const res = await fetch('/api/manager/exit/requests'); const list = await res.json(); const tbody = document.getElementById('exitRequestList'); tbody.innerHTML = ''; if(list.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px;">퇴소 신청 대기 항목이 없습니다.</td></tr>'; return; } list.forEach(item => { const reqDate = item.Exit_Request_Date ? item.Exit_Request_Date.substring(0, 10) : 'N/A'; tbody.innerHTML += `<tr><td>${item.SID}</td><td>${item.Name}</td><td>${item.Room_No}호</td><td>${reqDate}</td><td><button class="btn-approve-exit" onclick="processExitApproval('${item.SID}')">승인</button></td></tr>`; }); }
-    async function processExitApproval(sid) { if(!confirm(`[${sid}] 학생을 최종 퇴소 처리하시겠습니까?`)) return; await fetch('/api/manager/student/exit/approve', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ sid: sid }) }); alert("퇴소 처리가 완료되었습니다."); loadExitRequests(); loadStats(); }
+    // 관리자 정보 로드
+    function loadManagerInfo() {
+        fetch('/api/current-user')
+            .then(r => r.json())
+            .then(d => {
+                if(!d.loggedIn || d.role !== 'MANAGER') {
+                    location.href = '/login.html';
+                    return;
+                }
+                document.getElementById('managerName').innerText = (d.user.mname || "관리자") + "님";
+            });
+    }
 
-    // ★ 상벌점 관리 함수 (수정됨)
+    // 통계 로드
+    async function loadStats() {
+        try {
+            const r = await fetch('/api/manager/stats');
+            if(r.ok) {
+                const s = await r.json();
+                document.getElementById('statTotal').innerText = s.totalStudents + "명";
+                document.getElementById('statAbsence').innerText = s.todayAbsence + "명";
+                document.getElementById('statPendingAbsence').innerText = s.pendingAbsence + "건";
+                document.getElementById('statPendingComplaint').innerText = s.pendingComplaints + "건";
+            }
+        } catch(e) {
+            console.error('통계 로드 실패:', e);
+        }
+    }
+
+    // 대기 목록 로드
+    async function loadPendingItems() {
+        try {
+            const response = await fetch('/api/manager/pending-items');
+            const items = await response.json();
+            const list = document.getElementById('pendingList');
+            list.innerHTML = '';
+
+            if (items.length === 0) {
+                list.innerHTML = '<li class="list-item" style="color:#999; text-align:center;">대기 중인 항목 없음</li>';
+                return;
+            }
+
+            items.forEach(item => {
+                let color = item.type === '외박' ? '#27ae60' : (item.type === '퇴소' ? '#e74c3c' : '#9b59b6');
+                list.innerHTML += `
+                    <li class="list-item">
+                        <span><strong style="color:${color}">[${item.type}]</strong> ${item.text}</span>
+                        <span class="badge" style="background-color:${color}">${item.status}</span>
+                    </li>`;
+            });
+        } catch(e) {
+            console.error('대기 목록 로드 실패:', e);
+        }
+    }
+
+    // 퇴소 신청 모달 열기
+    function openExitApprovalModal() {
+        document.getElementById('exitApprovalModal').style.display = 'flex';
+        loadExitRequests();
+    }
+
+    // 퇴소 신청 목록 로드
+    async function loadExitRequests() {
+        const res = await fetch('/api/manager/exit/requests');
+        const list = await res.json();
+        const tbody = document.getElementById('exitRequestList');
+        tbody.innerHTML = '';
+
+        if(list.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px;">퇴소 신청 대기 항목이 없습니다.</td></tr>';
+            return;
+        }
+
+        list.forEach(item => {
+            const reqDate = item.Exit_Request_Date ? item.Exit_Request_Date.substring(0, 10) : 'N/A';
+            tbody.innerHTML += `
+                <tr>
+                    <td>${item.SID}</td>
+                    <td>${item.Name}</td>
+                    <td>${item.Room_No}호</td>
+                    <td>${reqDate}</td>
+                    <td>
+                        <button class="btn-approve-exit" onclick="processExitApproval('${item.SID}')">승인</button>
+                    </td>
+                </tr>`;
+        });
+    }
+
+    // 퇴소 승인 처리
+    async function processExitApproval(sid) {
+        if(!confirm(`[${sid}] 학생을 최종 퇴소 처리하시겠습니까?`)) return;
+
+        await fetch('/api/manager/student/exit/approve', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sid: sid })
+        });
+
+        alert("퇴소 처리가 완료되었습니다.");
+        loadExitRequests();
+        loadStats();
+    }
+
+    // 상벌점 관리 모달 열기
     function openPenaltyModal() {
         document.getElementById('penaltyModal').style.display = 'flex';
         document.getElementById('pSearchKeyword').value = '';
         resetPenaltyForm();
         searchStudent('');
     }
+
+    // 학생 검색
     async function searchStudent(keyword) {
         if (keyword === undefined) keyword = document.getElementById('pSearchKeyword').value;
+
         const res = await fetch(`/api/manager/students/search?keyword=${keyword}`);
         const students = await res.json();
         const list = document.getElementById('pStudentList');
         list.innerHTML = '';
-        if(students.length === 0) { list.innerHTML = '<li style="padding:20px; text-align:center; color:#999;">학생이 없습니다.</li>'; return; }
+
+        if(students.length === 0) {
+            list.innerHTML = '<li style="padding:20px; text-align:center; color:#999;">학생이 없습니다.</li>';
+            return;
+        }
+
         students.forEach(s => {
             let scoreClass = s.totalPenalty > 0 ? 'score-plus' : (s.totalPenalty < 0 ? 'score-minus' : 'score-zero');
             let scoreText = s.totalPenalty > 0 ? `+${s.totalPenalty}점` : s.totalPenalty + "점";
-            const li = document.createElement('li'); li.className = 'search-result-item';
-            li.innerHTML = `<div style="display:flex; justify-content:space-between;"><div><strong>${s.name}</strong> <small>(${s.sid})</small><br><span style="font-size:12px;color:#777;">${s.deptName}|${s.roomNo}호</span></div><span class="penalty-score ${scoreClass}">${scoreText}</span></div>`;
 
-            // ★ 수정된 클릭 이벤트 핸들러
+            const li = document.createElement('li');
+            li.className = 'search-result-item';
+            li.innerHTML = `
+                <div style="display:flex; justify-content:space-between;">
+                    <div>
+                        <strong>${s.name}</strong> <small>(${s.sid})</small><br>
+                        <span style="font-size:12px;color:#777;">${s.deptName} | ${s.roomNo}호</span>
+                    </div>
+                    <span class="penalty-score ${scoreClass}">${scoreText}</span>
+                </div>`;
+
             li.onclick = () => selectStudent(s, li, scoreText, scoreClass);
-
             list.appendChild(li);
         });
     }
+
+    // 학생 선택
     function selectStudent(s, el, scoreText, scoreClass) {
         document.querySelectorAll('.search-result-item').forEach(e => e.classList.remove('selected'));
         el.classList.add('selected');
+
         document.getElementById('penaltyFormBox').classList.add('active');
         document.getElementById('selectedStudentName').innerText = `${s.name} (${s.sid}) - ${s.roomNo}호`;
         document.getElementById('selectedStudentPenalty').innerText = `누적 점수: ${scoreText}`;
 
-        // ★ 점수 표시 색상 적용
         const scoreEl = document.getElementById('selectedStudentPenalty');
-        scoreEl.className = ""; // 기존 클래스 초기화
+        scoreEl.className = "";
         if(scoreClass === 'score-plus') scoreEl.style.color = '#27ae60';
         else if(scoreClass === 'score-minus') scoreEl.style.color = '#e74c3c';
         else scoreEl.style.color = '#7f8c8d';
@@ -222,6 +420,8 @@
         document.getElementById('pTargetSid').value = s.sid;
         globalSelectedSid = s.sid;
     }
+
+    // 상벌점 폼 초기화
     function resetPenaltyForm() {
         document.getElementById('penaltyFormBox').classList.remove('active');
         document.getElementById('selectedStudentName').innerText = "학생을 선택해주세요.";
@@ -230,36 +430,221 @@
         document.getElementById('pPoints').value = "";
         document.getElementById('pReason').value = "";
     }
+
+    // 상벌점 부여
     async function givePenalty() {
         const sid = document.getElementById('pTargetSid').value;
         const type = document.getElementById('pType').value;
         const points = document.getElementById('pPoints').value;
         const reason = document.getElementById('pReason').value;
+
         if(!sid || !points || !reason) return alert("모든 정보를 입력하세요");
 
         await fetch('/api/manager/penalty/give', {
-            method: 'POST', headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ studentId: sid, type: type, points: parseInt(points), reason: reason })
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                studentId: sid,
+                type: type,
+                points: parseInt(points),
+                reason: reason
+            })
         });
+
         alert("부여되었습니다.");
-        // 재검색을 통해 점수 업데이트 반영
         const currentKeyword = document.getElementById('pSearchKeyword').value;
         searchStudent(currentKeyword);
         resetPenaltyForm();
     }
 
-    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-    function logout() { if(confirm("로그아웃?")) fetch('/api/logout', {method:'POST'}).then(()=>location.href='/login.html'); }
-    function openApprovalModal(){document.getElementById('approvalModal').style.display='flex'; loadApprovalList();}
-    async function loadApprovalList() { const res=await fetch('/api/manager/absence/pending'); const list=await res.json(); const tbody=document.getElementById('approvalList'); tbody.innerHTML=''; if(list.length===0) { tbody.innerHTML='<tr><td colspan="4" style="text-align:center; padding:20px;">대기 중인 신청 없음</td></tr>'; return; } list.forEach(i => { tbody.innerHTML+=`<tr><td>${i.Name}<br><small>${i.SID} | ${i.Dept_Name}</small></td><td>${i.Start_Date}~${i.Return_Date}</td><td>${i.Reason}</td><td><button class="btn-approve" onclick="processApproval('${i.Absence_ID}','Approved')">승인</button> <button class="btn-reject" onclick="processApproval('${i.Absence_ID}','Rejected')">반려</button></td></tr>`; }); }
-    async function processApproval(id, st) { if(!confirm('처리하시겠습니까?')) return; await fetch('/api/manager/absence/approval', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({id:id, status:st})}); alert('처리완료'); loadApprovalList(); loadStats(); loadPendingItems(); }
-    function openComplaintModal(){document.getElementById('complaintModal').style.display='flex'; loadComplaints();}
-    async function loadComplaints(){ const res = await fetch('/api/manager/complaints'); const list = await res.json(); const tbody = document.getElementById('complaintList'); tbody.innerHTML = ''; if(list.length === 0) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px;">접수된 민원이 없습니다.</td></tr>'; return; } list.forEach(c => { let btnProcess = `<button class="status-btn btn-process" onclick="updateComplaint('${c.Comp_ID}', '처리중')">접수/처리</button>`; let btnComplete = `<button class="status-btn btn-complete" onclick="updateComplaint('${c.Comp_ID}', '완료')">완료</button>`; if(c.Status === '처리중') btnProcess = ''; if(c.Status === '완료') { btnProcess = ''; btnComplete = '<span style="color:#27ae60; font-weight:bold;">완료됨</span>'; } let statusColor = c.Status==='접수'?'red':(c.Status==='처리중'?'orange':'green'); tbody.innerHTML += `<tr><td style="color:${statusColor}; font-weight:bold;">${c.Status}</td><td>${c.Room_No}호</td><td><strong>${c.Content}</strong><br><small style="color:#888;">${c.StudentName} (${c.SID})</small></td><td>${c.Date}</td><td>${btnProcess} ${btnComplete}</td></tr>`; }); }
-    async function updateComplaint(id, status) { if(!confirm(`상태를 '${status}'(으)로 변경하시겠습니까?`)) return; await fetch('/api/manager/complaint/status', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ id: id, status: status }) }); alert("변경되었습니다."); loadComplaints(); loadStats(); }
-    function openNoticeModal(){document.getElementById('noticeModal').style.display='flex'; loadNotices();}
-    async function loadNotices(){ const res=await fetch('/api/notices'); const list=await res.json(); const ul=document.getElementById('noticeList'); ul.innerHTML=''; list.forEach(n => { ul.innerHTML+=`<li class="notice-item"><div class="n-title">${n.title}</div><div class="n-content">${n.content}</div><div class="n-meta">${n.writer}|${n.regDate}</div></li>`; }); }
-    async function createNotice(){ const title = document.getElementById('nTitle').value; const content = document.getElementById('nContent').value; const writer = document.getElementById('managerName').innerText.replace('님', ''); if(!title || !content) return alert("제목과 내용을 입력하세요"); await fetch('/api/notices', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title, content, writer }) }); alert("등록되었습니다."); document.getElementById('nTitle').value = ''; document.getElementById('nContent').value = ''; loadNotices(); }
+    // 외박 승인 모달 열기
+    function openApprovalModal() {
+        document.getElementById('approvalModal').style.display = 'flex';
+        loadApprovalList();
+    }
+
+    // 외박 승인 목록 로드
+    async function loadApprovalList() {
+        const res = await fetch('/api/manager/absence/pending');
+        const list = await res.json();
+        const tbody = document.getElementById('approvalList');
+        tbody.innerHTML = '';
+
+        if(list.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px;">대기 중인 신청 없음</td></tr>';
+            return;
+        }
+
+        list.forEach(i => {
+            tbody.innerHTML += `
+                <tr>
+                    <td>${i.Name}<br><small>${i.SID} | ${i.Dept_Name}</small></td>
+                    <td>${i.Start_Date} ~ ${i.Return_Date}</td>
+                    <td>${i.Reason}</td>
+                    <td>
+                        <button class="btn-approve" onclick="processApproval('${i.Absence_ID}','Approved')">승인</button>
+                        <button class="btn-reject" onclick="processApproval('${i.Absence_ID}','Rejected')">반려</button>
+                    </td>
+                </tr>`;
+        });
+    }
+
+    // 외박 승인/반려 처리
+    async function processApproval(id, st) {
+        if(!confirm('처리하시겠습니까?')) return;
+
+        await fetch('/api/manager/absence/approval', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({id: id, status: st})
+        });
+
+        alert('처리완료');
+        loadApprovalList();
+        loadStats();
+        loadPendingItems();
+    }
+
+    // 민원 모달 열기
+    function openComplaintModal() {
+        document.getElementById('complaintModal').style.display = 'flex';
+        loadComplaints();
+    }
+
+    // ★ 민원 목록 로드 (수정됨)
+    async function loadComplaints() {
+        try {
+            const res = await fetch('/api/manager/complaints');
+            const list = await res.json();
+            const tbody = document.getElementById('complaintList');
+            tbody.innerHTML = '';
+
+            if(list.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px;">접수된 민원이 없습니다.</td></tr>';
+                return;
+            }
+
+            list.forEach(c => {
+                let btnProcess = '';
+                let btnComplete = '';
+
+                // 상태별 버튼 표시 로직
+                if(c.Status === '접수') {
+                    btnProcess = `<button class="status-btn btn-process" onclick="updateComplaint('${c.Comp_ID}', '처리중')">처리중으로</button>`;
+                    btnComplete = `<button class="status-btn btn-complete" onclick="updateComplaint('${c.Comp_ID}', '완료')">완료</button>`;
+                } else if(c.Status === '처리중') {
+                    btnComplete = `<button class="status-btn btn-complete" onclick="updateComplaint('${c.Comp_ID}', '완료')">완료</button>`;
+                } else if(c.Status === '완료') {
+                    btnComplete = '<span style="color:#27ae60; font-weight:bold;">✓ 완료됨</span>';
+                }
+
+                let statusColor = c.Status === '접수' ? 'red' : (c.Status === '처리중' ? 'orange' : 'green');
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td style="color:${statusColor}; font-weight:bold;">${c.Status}</td>
+                        <td>${c.Room_No}호</td>
+                        <td>
+                            <strong>${c.Content}</strong><br>
+                            <small style="color:#888;">${c.StudentName} (${c.SID})</small>
+                        </td>
+                        <td>${c.Date}</td>
+                        <td>
+                            ${btnProcess}
+                            ${btnComplete}
+                        </td>
+                    </tr>`;
+            });
+        } catch(error) {
+            console.error('민원 목록 로드 실패:', error);
+        }
+    }
+
+    // ★ 민원 상태 변경 (수정됨)
+    async function updateComplaint(id, status) {
+        if(!confirm(`상태를 '${status}'(으)로 변경하시겠습니까?`)) return;
+
+        try {
+            const response = await fetch('/api/manager/complaint/status', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    id: id,
+                    status: status
+                })
+            });
+
+            if(response.ok) {
+                alert("상태가 변경되었습니다.");
+                await loadComplaints(); // 목록 새로고침
+                await loadStats(); // 통계 업데이트
+                await loadPendingItems(); // 대기 목록 업데이트
+            } else {
+                const errorText = await response.text();
+                console.error('서버 응답 오류:', errorText);
+                alert("상태 변경 중 오류가 발생했습니다.");
+            }
+        } catch(error) {
+            console.error('상태 변경 실패:', error);
+            alert("서버 오류가 발생했습니다.");
+        }
+    }
+
+    // 공지사항 모달 열기
+    function openNoticeModal() {
+        document.getElementById('noticeModal').style.display = 'flex';
+        loadNotices();
+    }
+
+    // 공지사항 목록 로드
+    async function loadNotices() {
+        const res = await fetch('/api/notices');
+        const list = await res.json();
+        const ul = document.getElementById('noticeList');
+        ul.innerHTML = '';
+
+        list.forEach(n => {
+            ul.innerHTML += `
+                <li class="notice-item">
+                    <div class="n-title">${n.title}</div>
+                    <div class="n-content">${n.content}</div>
+                    <div class="n-meta">${n.writer} | ${n.regDate}</div>
+                </li>`;
+        });
+    }
+
+    // 공지사항 등록
+    async function createNotice() {
+        const title = document.getElementById('nTitle').value;
+        const content = document.getElementById('nContent').value;
+        const writer = document.getElementById('managerName').innerText.replace('님', '');
+
+        if(!title || !content) return alert("제목과 내용을 입력하세요");
+
+        await fetch('/api/notices', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ title, content, writer })
+        });
+
+        alert("등록되었습니다.");
+        document.getElementById('nTitle').value = '';
+        document.getElementById('nContent').value = '';
+        loadNotices();
+    }
+
+    // 모달 닫기
+    function closeModal(id) {
+        document.getElementById(id).style.display = 'none';
+    }
+
+    // 로그아웃
+    function logout() {
+        if(confirm("로그아웃?"))
+            fetch('/api/logout', {method: 'POST'}).then(() => location.href = '/login.html');
+    }
 </script>
 </body>
 </html>
-

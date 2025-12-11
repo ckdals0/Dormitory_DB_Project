@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>학생 서비스 - 기숙사 시스템</title>
     <style>
-        /* (기존 스타일 유지) */
         body { font-family: 'Noto Sans KR', sans-serif; background-color: #f4f7f6; margin: 0; padding: 0; }
         header { background-color: #2c3e50; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         header h1 { margin: 0; font-size: 20px; }
@@ -30,12 +29,11 @@
         /* 모달 스타일 */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
         .modal-content { background: white; padding: 30px; border-radius: 10px; width: 500px; max-height: 80vh; overflow-y: auto; position: relative; }
-        /* ★ 모달 크기 확장 (내역용) */
         .modal-wide { width: 900px; }
 
         .close-btn { position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; color: #999; background: none; border: none; }
 
-        /* ★ 내역 분할 레이아웃 */
+        /* 내역 분할 레이아웃 */
         .history-split-layout { display: flex; gap: 20px; height: 400px; }
         .history-col { flex: 1; display: flex; flex-direction: column; border: 1px solid #eee; border-radius: 8px; padding: 10px; background-color: #fcfcfc; }
         .history-col h4 { margin: 0 0 10px 0; text-align: center; padding-bottom: 10px; border-bottom: 2px solid #ddd; color: #555; }
@@ -114,9 +112,9 @@
     </div>
 </div>
 
-<!-- ★ 외박 내역 모달 (좌우 분할 수정됨) -->
+<!-- 외박 내역 모달 (좌우 분할) -->
 <div id="historyModal" class="modal">
-    <div class="modal-content modal-wide"> <!-- 넓은 모달 적용 -->
+    <div class="modal-content modal-wide">
         <button class="close-btn" onclick="closeModal('historyModal')">×</button>
         <h3>📋 외박 신청 내역</h3>
 
@@ -136,19 +134,106 @@
     </div>
 </div>
 
-<!-- 나머지 모달들 (기존 유지) -->
-<div id="penaltyModal" class="modal"><div class="modal-content"><button class="close-btn" onclick="closeModal('penaltyModal')">×</button><h3>📊 상벌점 내역</h3><div class="score-card"><div class="score-title">나의 누적 점수</div><div id="myTotalScore" class="score-value">0점</div></div><ul id="penaltyList" class="history-list"></ul></div></div>
-<div id="absenceModal" class="modal"><div class="modal-content"><button class="close-btn" onclick="closeModal('absenceModal')">×</button><h3>📅 외박 신청</h3><div class="form-group"><label>시작일</label><input type="date" id="startDate"></div><div class="form-group"><label>복귀일</label><input type="date" id="returnDate"></div><div class="form-group"><label>사유</label><textarea id="reason" placeholder="예: 본가 방문"></textarea></div><div class="modal-actions"><button class="btn-confirm" onclick="applyAbsence()">신청하기</button></div></div></div>
-<div id="repairModal" class="modal"><div class="modal-content"><button class="close-btn" onclick="closeModal('repairModal')">×</button><h3>🛠️ 시설물 수리 요청</h3><p style="color:#7f8c8d; font-size:14px;">본인 호실(<span id="repairRoomNo"></span>) 시설물 신고</p><div class="form-group"><label>고장 시설물</label><select id="repairFacility"><option value="">선택하세요</option></select></div><div class="form-group"><label>내용</label><textarea id="repairContent" placeholder="고장 내용을 입력하세요."></textarea></div><div class="modal-actions"><button class="btn-confirm" onclick="applyRepair()">요청하기</button></div></div></div>
-<div id="complaintModal" class="modal"><div class="modal-content"><button class="close-btn" onclick="closeModal('complaintModal')">×</button><h3>🗣️ 일반 민원 접수</h3><div class="form-group"><label>내용</label><textarea id="complaintContent" placeholder="내용을 입력하세요."></textarea></div><div class="modal-actions"><button class="btn-confirm" onclick="applyComplaint()">접수하기</button></div></div></div>
-<div id="complaintHistoryModal" class="modal"><div class="modal-content"><button class="close-btn" onclick="closeModal('complaintHistoryModal')">×</button><h3 id="complaintHistoryTitle">📝 요청 내역</h3><ul id="complaintHistoryList" class="history-list"></ul></div></div>
-<div id="pwdModal" class="modal"><div class="modal-content"><button class="close-btn" onclick="closeModal('pwdModal')">×</button><h3>비밀번호 변경</h3><input type="password" id="currentPwd" placeholder="현재 비밀번호" style="width:100%;padding:10px;margin-bottom:5px;"><input type="password" id="newPwd" placeholder="새 비밀번호" style="width:100%;padding:10px;margin-bottom:5px;"><input type="password" id="confirmPwd" placeholder="새 비밀번호 확인" style="width:100%;padding:10px;"><div class="modal-actions"><button class="btn-confirm" onclick="changePassword()">변경하기</button></div></div></div>
+<!-- 나머지 모달들 -->
+<div id="penaltyModal" class="modal">
+    <div class="modal-content">
+        <button class="close-btn" onclick="closeModal('penaltyModal')">×</button>
+        <h3>📊 상벌점 내역</h3>
+        <div class="score-card">
+            <div class="score-title">나의 누적 점수</div>
+            <div id="myTotalScore" class="score-value">0점</div>
+        </div>
+        <ul id="penaltyList" class="history-list"></ul>
+    </div>
+</div>
+
+<div id="absenceModal" class="modal">
+    <div class="modal-content">
+        <button class="close-btn" onclick="closeModal('absenceModal')">×</button>
+        <h3>📅 외박 신청</h3>
+        <div class="form-group">
+            <label>시작일</label>
+            <input type="date" id="startDate">
+        </div>
+        <div class="form-group">
+            <label>복귀일</label>
+            <input type="date" id="returnDate">
+        </div>
+        <div class="form-group">
+            <label>사유</label>
+            <textarea id="reason" placeholder="예: 본가 방문"></textarea>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-confirm" onclick="applyAbsence()">신청하기</button>
+        </div>
+    </div>
+</div>
+
+<div id="repairModal" class="modal">
+    <div class="modal-content">
+        <button class="close-btn" onclick="closeModal('repairModal')">×</button>
+        <h3>🛠️ 시설물 수리 요청</h3>
+        <p style="color:#7f8c8d; font-size:14px;">본인 호실(<span id="repairRoomNo"></span>) 시설물 신고</p>
+        <div class="form-group">
+            <label>고장 시설물</label>
+            <select id="repairFacility">
+                <option value="">선택하세요</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>내용</label>
+            <textarea id="repairContent" placeholder="고장 내용을 입력하세요."></textarea>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-confirm" onclick="applyRepair()">요청하기</button>
+        </div>
+    </div>
+</div>
+
+<div id="complaintModal" class="modal">
+    <div class="modal-content">
+        <button class="close-btn" onclick="closeModal('complaintModal')">×</button>
+        <h3>🗣️ 일반 민원 접수</h3>
+        <div class="form-group">
+            <label>내용</label>
+            <textarea id="complaintContent" placeholder="내용을 입력하세요."></textarea>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-confirm" onclick="applyComplaint()">접수하기</button>
+        </div>
+    </div>
+</div>
+
+<div id="complaintHistoryModal" class="modal">
+    <div class="modal-content">
+        <button class="close-btn" onclick="closeModal('complaintHistoryModal')">×</button>
+        <h3 id="complaintHistoryTitle">📝 요청 내역</h3>
+        <ul id="complaintHistoryList" class="history-list"></ul>
+    </div>
+</div>
+
+<div id="pwdModal" class="modal">
+    <div class="modal-content">
+        <button class="close-btn" onclick="closeModal('pwdModal')">×</button>
+        <h3>비밀번호 변경</h3>
+        <input type="password" id="currentPwd" placeholder="현재 비밀번호" style="width:100%;padding:10px;margin-bottom:5px;">
+        <input type="password" id="newPwd" placeholder="새 비밀번호" style="width:100%;padding:10px;margin-bottom:5px;">
+        <input type="password" id="confirmPwd" placeholder="새 비밀번호 확인" style="width:100%;padding:10px;">
+        <div class="modal-actions">
+            <button class="btn-confirm" onclick="changePassword()">변경하기</button>
+        </div>
+    </div>
+</div>
 
 <script>
     let myRoomNo = "";
+
     window.onload = function() {
         fetch('/api/current-user').then(res => res.json()).then(data => {
-            if (!data.loggedIn || data.role !== 'STUDENT') { location.href = '/login.html'; return; }
+            if (!data.loggedIn || data.role !== 'STUDENT') {
+                location.href = '/login.html';
+                return;
+            }
             const user = data.user;
             document.getElementById('welcomeMsg').innerText = `${user.name}님`;
             document.getElementById('infoSid').innerText = user.sid;
@@ -161,7 +246,7 @@
         });
     };
 
-    // ★ 외박 신청 내역 조회 (분할 로직)
+    // ★ 외박 신청 내역 조회 (관리자 정보 포함)
     function openHistoryModal() {
         document.getElementById('historyModal').style.display='flex';
         loadHistory();
@@ -184,17 +269,28 @@
             list.forEach(item => {
                 let badgeClass = 'bg-pending';
                 let statusText = '대기';
-                let targetUl = pendingUl; // 기본은 대기
+                let targetUl = pendingUl;
+                let managerInfo = ''; // ★ 관리자 정보 추가
 
-                // 상태에 따라 리스트 분류
                 if (item.Status === 'Pending') {
                     hasPending = true;
                     targetUl = pendingUl;
                 } else {
                     hasPast = true;
                     targetUl = pastUl;
-                    if(item.Status === 'Approved') { badgeClass = 'bg-approved'; statusText = '승인'; }
-                    else if(item.Status === 'Rejected') { badgeClass = 'bg-rejected'; statusText = '반려'; }
+                    if(item.Status === 'Approved') {
+                        badgeClass = 'bg-approved';
+                        statusText = '승인';
+                    }
+                    else if(item.Status === 'Rejected') {
+                        badgeClass = 'bg-rejected';
+                        statusText = '반려';
+                    }
+
+                    // ★ 처리한 관리자 정보 표시
+                    if (item.Manager_Name) {
+                        managerInfo = `<br><span style="font-size:12px; color:#999;">처리자: ${item.Manager_Name}</span>`;
+                    }
                 }
 
                 targetUl.innerHTML += `
@@ -202,33 +298,270 @@
                         <div>
                             <strong>${item.Start_Date} ~ ${item.Return_Date}</strong><br>
                             <span style="color:#7f8c8d; font-size:13px;">${item.Reason}</span>
+                            ${managerInfo}
                         </div>
                         <span class="badge ${badgeClass}">${statusText}</span>
                     </li>`;
             });
 
-            // 데이터 없을 때 메시지
             if (!hasPending) pendingUl.innerHTML = '<li style="text-align:center; color:#ccc; padding:20px;">대기 중인 신청이 없습니다.</li>';
             if (!hasPast) pastUl.innerHTML = '<li style="text-align:center; color:#ccc; padding:20px;">과거 내역이 없습니다.</li>';
 
         } catch(e) { console.error(e); }
     }
 
-    // (기타 함수들 - 기존 로직 유지)
-    async function applyAbsence() { const s=document.getElementById('startDate').value, r=document.getElementById('returnDate').value, rs=document.getElementById('reason').value; if(!s||!r||!rs) return alert("입력 필요"); await fetch('/api/absence/apply', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({startDate:s, returnDate:r, reason:rs})}); alert("신청 완료"); closeModal('absenceModal'); }
-    async function loadMyFacilities() { if(!myRoomNo) return; try { const res = await fetch(`/api/rooms/${myRoomNo}/facilities`); const facilities = await res.json(); const select = document.getElementById('repairFacility'); select.innerHTML = '<option value="">시설물을 선택하세요 (선택사항)</option>'; facilities.forEach(f => { const option = document.createElement('option'); option.value = f.Fac_ID; option.textContent = `${f.Name} (${f.Status})`; select.appendChild(option); }); } catch(e) {} }
-    async function applyRepair() { const content = document.getElementById('repairContent').value; const facilityId = document.getElementById('repairFacility').value; if(!content) return alert("내용을 입력해주세요."); try { const res = await fetch('/api/complaint/apply', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ content: content, facilityId: facilityId }) }); const result = await res.json(); alert(result.message); if(result.success) { closeModal('repairModal'); document.getElementById('repairContent').value = ''; } } catch(e) { alert("오류 발생"); } }
-    async function applyComplaint() { const content = document.getElementById('complaintContent').value; if(!content) return alert("내용을 입력해주세요."); try { const res = await fetch('/api/complaint/apply', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ content: content }) }); const result = await res.json(); alert("민원이 접수되었습니다."); if(result.success) { closeModal('complaintModal'); document.getElementById('complaintContent').value = ''; } } catch(e) { alert("오류 발생"); } }
-    async function requestExit() { if(!confirm("정말로 퇴소하시겠습니까?\n(확인 시 즉시 처리되며 로그아웃됩니다.)")) return; try { const res = await fetch('/students/request-exit', { method: 'POST' }); const result = await res.json(); alert(result.message); if (result.success) { window.location.href = '/login.html'; } } catch (e) { alert("오류 발생"); } }
-    function openPenaltyModal() { document.getElementById('penaltyModal').style.display='flex'; loadPenaltyHistory(); }
-    async function loadPenaltyHistory() { try { const res = await fetch('/api/penalty/history'); if (!res.ok) throw new Error("API 오류"); const data = await res.json(); const totalScore = data.totalPenalty; const scoreEl = document.getElementById('myTotalScore'); if (totalScore > 0) { scoreEl.innerText = `+${totalScore}점`; scoreEl.className = "score-value score-plus"; } else if (totalScore < 0) { scoreEl.innerText = `${totalScore}점`; scoreEl.className = "score-value score-minus"; } else { scoreEl.innerText = "0점"; scoreEl.className = "score-value"; } const list = data.history; const ul = document.getElementById('penaltyList'); ul.innerHTML = ''; if(list.length === 0) { ul.innerHTML='<li style="text-align:center;padding:20px;">내역 없음</li>'; return; } list.forEach(i => { let b = i.Type==='상점'?'bg-approved':'bg-rejected'; ul.innerHTML+=`<li class="history-item"><div><strong>${i.Date}</strong><br><span style="color:#555;">${i.Reason}</span></div><span class="badge ${b}">${i.Points}점</span></li>`; }); } catch(e) { document.getElementById('penaltyList').innerHTML='<li style="text-align:center;padding:20px;">준비 중입니다.</li>'; } }
-    function openComplaintHistoryModal(type) { document.getElementById('complaintHistoryModal').style.display = 'flex'; document.getElementById('complaintHistoryTitle').innerText = (type === 'REPAIR') ? '🛠️ 수리 요청 내역' : '📨 민원 접수 내역'; loadComplaintHistory(type); }
-    async function loadComplaintHistory(type) { try { const res = await fetch('/api/complaint/history'); const list = await res.json(); const ul = document.getElementById('complaintHistoryList'); ul.innerHTML = ''; const filteredList = list.filter(item => { const isRepair = item.Content.startsWith('['); return type === 'REPAIR' ? isRepair : !isRepair; }); if(filteredList.length === 0) { ul.innerHTML = '<li style="text-align:center; color:#999; padding:20px;">내역이 없습니다.</li>'; return; } filteredList.forEach(item => { let b = 'bg-pending'; if(item.Status === '처리중') b = 'bg-process'; if(item.Status === '완료') b = 'bg-complete'; ul.innerHTML += `<li class="history-item"><div><strong>${item.Date}</strong><br><span style="color:#555; font-size:14px;">${item.Content}</span></div><span class="badge ${b}">${item.Status}</span></li>`; }); } catch(e) {} }
+    // 외박 신청
+    async function applyAbsence() {
+        const s = document.getElementById('startDate').value;
+        const r = document.getElementById('returnDate').value;
+        const rs = document.getElementById('reason').value;
 
-    function openModal(id) { document.getElementById(id).style.display = 'flex'; if(id === 'repairModal') { loadMyFacilities(); document.getElementById('repairContent').value=''; } if(id === 'absenceModal') { document.getElementById('startDate').value=''; document.getElementById('returnDate').value=''; document.getElementById('reason').value=''; } if(id === 'pwdModal') { document.getElementById('currentPwd').value=''; document.getElementById('newPwd').value=''; document.getElementById('confirmPwd').value=''; } if(id === 'complaintModal') { document.getElementById('complaintContent').value=''; } }
-    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-    function logout() { if(confirm("로그아웃?")) fetch('/api/logout',{method:'POST'}).then(()=>location.href='/login.html'); }
-    async function changePassword() { const c=document.getElementById('currentPwd').value, n=document.getElementById('newPwd').value, cf=document.getElementById('confirmPwd').value; if(!c||!n) return alert("입력 필요"); if(n!==cf) return alert("비번 불일치"); const res=await fetch('/students/change-password', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({currentPassword:c, newPassword:n})}); const r=await res.json(); alert(r.message); if(r.success) closeModal('pwdModal'); }
+        if(!s || !r || !rs) return alert("입력 필요");
+
+        await fetch('/api/absence/apply', {
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({startDate:s, returnDate:r, reason:rs})
+        });
+
+        alert("신청 완료");
+        closeModal('absenceModal');
+    }
+
+    // 내 호실 시설물 목록 로드
+    async function loadMyFacilities() {
+        if(!myRoomNo) return;
+        try {
+            const res = await fetch(`/api/rooms/${myRoomNo}/facilities`);
+            const facilities = await res.json();
+            const select = document.getElementById('repairFacility');
+            select.innerHTML = '<option value="">시설물을 선택하세요 (선택사항)</option>';
+            facilities.forEach(f => {
+                const option = document.createElement('option');
+                option.value = f.Fac_ID;
+                option.textContent = `${f.Name} (${f.Status})`;
+                select.appendChild(option);
+            });
+        } catch(e) {}
+    }
+
+    // 수리 요청
+    async function applyRepair() {
+        const content = document.getElementById('repairContent').value;
+        const facilityId = document.getElementById('repairFacility').value;
+
+        if(!content) return alert("내용을 입력해주세요.");
+
+        try {
+            const res = await fetch('/api/complaint/apply', {
+                method: 'POST',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({ content: content, facilityId: facilityId })
+            });
+            const result = await res.json();
+            alert(result.message);
+            if(result.success) {
+                closeModal('repairModal');
+                document.getElementById('repairContent').value = '';
+            }
+        } catch(e) {
+            alert("오류 발생");
+        }
+    }
+
+    // 일반 민원 접수
+    async function applyComplaint() {
+        const content = document.getElementById('complaintContent').value;
+
+        if(!content) return alert("내용을 입력해주세요.");
+
+        try {
+            const res = await fetch('/api/complaint/apply', {
+                method: 'POST',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({ content: content })
+            });
+            const result = await res.json();
+            alert("민원이 접수되었습니다.");
+            if(result.success) {
+                closeModal('complaintModal');
+                document.getElementById('complaintContent').value = '';
+            }
+        } catch(e) {
+            alert("오류 발생");
+        }
+    }
+
+    // 퇴소 신청
+    async function requestExit() {
+        if(!confirm("정말로 퇴소하시겠습니까?\n(확인 시 즉시 처리되며 로그아웃됩니다.)")) return;
+
+        try {
+            const res = await fetch('/students/request-exit', { method: 'POST' });
+            const result = await res.json();
+            alert(result.message);
+            if (result.success) {
+                window.location.href = '/login.html';
+            }
+        } catch (e) {
+            alert("오류 발생");
+        }
+    }
+
+    // 상벌점 모달 열기
+    function openPenaltyModal() {
+        document.getElementById('penaltyModal').style.display='flex';
+        loadPenaltyHistory();
+    }
+
+    // 상벌점 내역 로드
+    async function loadPenaltyHistory() {
+        try {
+            const res = await fetch('/api/penalty/history');
+            if (!res.ok) throw new Error("API 오류");
+
+            const data = await res.json();
+            const totalScore = data.totalPenalty;
+            const scoreEl = document.getElementById('myTotalScore');
+
+            if (totalScore > 0) {
+                scoreEl.innerText = `+${totalScore}점`;
+                scoreEl.className = "score-value score-plus";
+            } else if (totalScore < 0) {
+                scoreEl.innerText = `${totalScore}점`;
+                scoreEl.className = "score-value score-minus";
+            } else {
+                scoreEl.innerText = "0점";
+                scoreEl.className = "score-value";
+            }
+
+            const list = data.history;
+            const ul = document.getElementById('penaltyList');
+            ul.innerHTML = '';
+
+            if(list.length === 0) {
+                ul.innerHTML='<li style="text-align:center;padding:20px;">내역 없음</li>';
+                return;
+            }
+
+            list.forEach(i => {
+                let b = i.Type==='상점'?'bg-approved':'bg-rejected';
+                ul.innerHTML+=`
+                    <li class="history-item">
+                        <div>
+                            <strong>${i.Date}</strong><br>
+                            <span style="color:#555;">${i.Reason}</span>
+                        </div>
+                        <span class="badge ${b}">${i.Points}점</span>
+                    </li>`;
+            });
+        } catch(e) {
+            document.getElementById('penaltyList').innerHTML='<li style="text-align:center;padding:20px;">준비 중입니다.</li>';
+        }
+    }
+
+    // 민원 내역 모달 열기
+    function openComplaintHistoryModal(type) {
+        document.getElementById('complaintHistoryModal').style.display = 'flex';
+        document.getElementById('complaintHistoryTitle').innerText = (type === 'REPAIR') ? '🛠️ 수리 요청 내역' : '📨 민원 접수 내역';
+        loadComplaintHistory(type);
+    }
+
+    // ★ 민원 내역 로드 (관리자 정보 포함)
+    async function loadComplaintHistory(type) {
+        try {
+            const res = await fetch('/api/complaint/history');
+            const list = await res.json();
+            const ul = document.getElementById('complaintHistoryList');
+            ul.innerHTML = '';
+
+            const filteredList = list.filter(item => {
+                const isRepair = item.Content.startsWith('[');
+                return type === 'REPAIR' ? isRepair : !isRepair;
+            });
+
+            if(filteredList.length === 0) {
+                ul.innerHTML = '<li style="text-align:center; color:#999; padding:20px;">내역이 없습니다.</li>';
+                return;
+            }
+
+            filteredList.forEach(item => {
+                let b = 'bg-pending';
+                if(item.Status === '처리중') b = 'bg-process';
+                if(item.Status === '완료') b = 'bg-complete';
+
+                // ★ 관리자 정보 추가
+                let managerInfo = '';
+                if (item.Manager_Name && item.Status !== '접수') {
+                    managerInfo = `<br><span style="font-size:12px; color:#999;">처리자: ${item.Manager_Name}</span>`;
+                }
+
+                ul.innerHTML += `
+                    <li class="history-item">
+                        <div>
+                            <strong>${item.Date}</strong><br>
+                            <span style="color:#555; font-size:14px;">${item.Content}</span>
+                            ${managerInfo}
+                        </div>
+                        <span class="badge ${b}">${item.Status}</span>
+                    </li>`;
+            });
+        } catch(e) {}
+    }
+
+    // 모달 열기
+    function openModal(id) {
+        document.getElementById(id).style.display = 'flex';
+
+        if(id === 'repairModal') {
+            loadMyFacilities();
+            document.getElementById('repairContent').value='';
+        }
+        if(id === 'absenceModal') {
+            document.getElementById('startDate').value='';
+            document.getElementById('returnDate').value='';
+            document.getElementById('reason').value='';
+        }
+        if(id === 'pwdModal') {
+            document.getElementById('currentPwd').value='';
+            document.getElementById('newPwd').value='';
+            document.getElementById('confirmPwd').value='';
+        }
+        if(id === 'complaintModal') {
+            document.getElementById('complaintContent').value='';
+        }
+    }
+
+    // 모달 닫기
+    function closeModal(id) {
+        document.getElementById(id).style.display = 'none';
+    }
+
+    // 로그아웃
+    function logout() {
+        if(confirm("로그아웃?"))
+            fetch('/api/logout',{method:'POST'}).then(()=>location.href='/login.html');
+    }
+
+    // 비밀번호 변경
+    async function changePassword() {
+        const c = document.getElementById('currentPwd').value;
+        const n = document.getElementById('newPwd').value;
+        const cf = document.getElementById('confirmPwd').value;
+
+        if(!c || !n) return alert("입력 필요");
+        if(n !== cf) return alert("비번 불일치");
+
+        const res = await fetch('/students/change-password', {
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify({currentPassword:c, newPassword:n})
+        });
+
+        const r = await res.json();
+        alert(r.message);
+        if(r.success) closeModal('pwdModal');
+    }
 </script>
 </body>
 </html>

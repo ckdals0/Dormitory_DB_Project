@@ -17,16 +17,13 @@ public class AbsenceRepository {
     // 1. 외박 신청 저장 (학생용)
     public void save(String sid, AbsenceRequest request) {
         String sql = "INSERT INTO ABSENCE (Absence_ID, SID, Start_Date, Return_Date, Status, Reason) VALUES (?, ?, ?, ?, ?, ?)";
-
-        // ID 생성 (실무에서는 Sequence나 UUID 사용 권장)
         String absenceId = "A-" + (int)(Math.random() * 1000000);
-
         jdbcTemplate.update(sql,
                 absenceId,
                 sid,
                 request.getStartDate(),
                 request.getReturnDate(),
-                "Pending", // 초기 상태: 대기
+                "Pending",
                 request.getReason()
         );
     }
@@ -52,8 +49,7 @@ public class AbsenceRepository {
         });
     }
 
-    // 3. ★ 승인 대기 목록 상세 조회 (관리자 승인 팝업용 - 전체)
-    // 학생의 이름과 학과 정보까지 조인해서 가져옵니다.
+    // 3. 승인 대기 목록 상세 조회 (관리자 승인 팝업용 - 전체)
     public List<Map<String, Object>> findAllPendingDetailed() {
         String sql = """
             SELECT a.*, s.Name, s.Dept_Name 
@@ -65,14 +61,21 @@ public class AbsenceRepository {
         return jdbcTemplate.queryForList(sql);
     }
 
-    // 4. ★ 상태 변경 (승인/반려 처리)
-    public void updateStatus(String absenceId, String status) {
-        String sql = "UPDATE ABSENCE SET Status = ? WHERE Absence_ID = ?";
-        jdbcTemplate.update(sql, status, absenceId);
+    // 4. ★ 상태 변경 (승인/반려 처리) - 관리자 정보 추가
+    public void updateStatus(String absenceId, String status, String managerId) {
+        String sql = "UPDATE ABSENCE SET Status = ?, Manager_ID = ?, Processed_Date = CURRENT_TIMESTAMP WHERE Absence_ID = ?";
+        jdbcTemplate.update(sql, status, managerId, absenceId);
     }
 
+    // 5. ★ 학생별 외박 내역 조회 (관리자 이름 포함)
     public List<Map<String, Object>> findHistoryByStudent(String sid) {
-        String sql = "SELECT * FROM ABSENCE WHERE SID = ? ORDER BY Start_Date DESC";
+        String sql = """
+            SELECT a.*, m.MName AS Manager_Name
+            FROM ABSENCE a
+            LEFT JOIN MANAGER m ON a.Manager_ID = m.Manager_ID
+            WHERE a.SID = ? 
+            ORDER BY a.Start_Date DESC
+        """;
         return jdbcTemplate.queryForList(sql, sid);
     }
 }
