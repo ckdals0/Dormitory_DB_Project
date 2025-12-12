@@ -90,7 +90,7 @@ public class StudentController {
             // (3) 학생 데이터 삭제
             studentRepository.delete(user.getSid());
 
-            // (4) 세션 만료 (자동 로그아웃)
+            // (4) 세션 만료
             session.invalidate();
 
             response.put("success", true);

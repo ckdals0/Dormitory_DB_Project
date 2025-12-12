@@ -25,10 +25,8 @@ public class PenaltyController {
         Student user = (Student) session.getAttribute("user");
         if (user == null) return null;
 
-        // (1) 내역 조회
         List<Map<String, Object>> history = penaltyRepository.findHistoryByStudent(user.getSid());
 
-        // (2) 총점 조회
         Integer currentTotal = studentRepository.findTotalPenalty(user.getSid());
 
         response.put("totalPenalty", currentTotal != null ? currentTotal : 0);

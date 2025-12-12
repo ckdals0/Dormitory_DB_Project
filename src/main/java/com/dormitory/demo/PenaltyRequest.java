@@ -6,7 +6,6 @@ public class PenaltyRequest {
     private int points;
     private String reason;
 
-    // Getter, Setter
     public String getStudentId() { return studentId; }
     public void setStudentId(String studentId) { this.studentId = studentId; }
     public String getType() { return type; }

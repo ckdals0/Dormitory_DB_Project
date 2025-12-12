@@ -6,7 +6,6 @@ public class StatsResponse {
     private int pendingAbsence;
     private int pendingComplaints;
 
-    // 생성자, Getter
     public StatsResponse(int totalStudents, int todayAbsence, int pendingAbsence, int pendingComplaints) {
         this.totalStudents = totalStudents;
         this.todayAbsence = todayAbsence;

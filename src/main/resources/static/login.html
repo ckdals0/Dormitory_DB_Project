@@ -8,8 +8,6 @@
             display: flex; justify-content: center; align-items: center; height: 100vh;
             background-color: #f0f2f5; font-family: 'Noto Sans KR', sans-serif; margin: 0;
         }
-
-        /* 메인 컨테이너 (좌우 분할) */
         .main-container {
             display: flex;
             width: 900px;
@@ -20,10 +18,9 @@
             overflow: hidden;
         }
 
-        /* 왼쪽: 공지사항 영역 */
         .notice-section {
             flex: 1.2;
-            background-color: #3498db; /* 파란색 배경 */
+            background-color: #3498db;
             color: white;
             padding: 40px;
             display: flex;
@@ -34,7 +31,7 @@
 
         .notice-list {
             list-style: none; padding: 0; margin: 0;
-            flex: 1; overflow-y: auto; /* 내용 많으면 스크롤 */
+            flex: 1; overflow-y: auto;
         }
 
         .notice-item {
@@ -48,11 +45,10 @@
 
         .n-title { font-weight: bold; font-size: 16px; margin-bottom: 5px; }
         .n-date { font-size: 12px; opacity: 0.8; }
-        .n-content { font-size: 14px; margin-top: 8px; line-height: 1.4; display: none; /* 클릭 시 내용 보기 */ }
-        .notice-item.active .n-content { display: block; } /* 활성화되면 내용 보임 */
+        .n-content { font-size: 14px; margin-top: 8px; line-height: 1.4; display: none; }
+        .notice-item.active .n-content { display: block; }
 
 
-        /* 오른쪽: 로그인 폼 영역 */
         .login-section {
             flex: 1;
             padding: 50px;
@@ -65,14 +61,12 @@
         .login-box { width: 100%; max-width: 320px; text-align: center; }
         .login-box h2 { color: #333; margin-bottom: 30px; font-size: 26px; }
 
-        /* 입력창 스타일 */
         input[type="text"], input[type="password"] {
             width: 100%; padding: 12px; margin: 8px 0;
             border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box;
             font-size: 14px;
         }
 
-        /* 라디오 버튼 스타일 */
         .role-selector {
             display: flex; justify-content: center; gap: 30px; margin-bottom: 20px;
         }
@@ -90,7 +84,6 @@
         }
         button:hover { background-color: #2980b9; }
 
-        /* 스크롤바 커스텀 */
         .notice-list::-webkit-scrollbar { width: 6px; }
         .notice-list::-webkit-scrollbar-track { background: rgba(255,255,255,0.1); }
         .notice-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 3px; }
@@ -125,14 +118,13 @@
 </div>
 
 <script>
-    // 페이지 로드 시 공지사항 불러오기
     window.onload = function() {
         loadNotices();
     };
 
     async function loadNotices() {
         try {
-            const response = await fetch('/api/notices'); // 기존에 만든 API 재사용
+            const response = await fetch('/api/notices');
             const notices = await response.json();
             const list = document.getElementById('noticeList');
             list.innerHTML = '';
@@ -142,14 +134,11 @@
                 return;
             }
 
-            // 최신 5개만 보여주거나 전체 보여주기
             notices.forEach(n => {
-                // 날짜 포맷팅 (YYYY-MM-DD만 표시)
                 const dateStr = n.regDate ? n.regDate.substring(0, 10) : '';
 
                 const li = document.createElement('li');
                 li.className = 'notice-item';
-                // 클릭 시 내용 토글 (아코디언 효과)
                 li.onclick = function() { this.classList.toggle('active'); };
 
                 li.innerHTML = `
